@@ -1,0 +1,7 @@
+﻿  avancezlib.cpp
+D:\GL\Project\avancezlib.h(3,10): fatal error C1083: Cannot open include file: 'SDL.h': No such file or directory
+  component.cpp
+D:\GL\Project\object_pool.h(4,11): fatal error C1083: Cannot open include file: 'SDL.h': No such file or directory
+  game_object.cpp
+D:\GL\Project\object_pool.h(4,11): fatal error C1083: Cannot open include file: 'SDL.h': No such file or directory
+  Generating Code...
