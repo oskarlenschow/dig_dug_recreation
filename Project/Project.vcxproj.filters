@@ -53,10 +53,10 @@
     <ClCompile Include="game_object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="invaders.cpp">
+    <ClCompile Include="grid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="grid.cpp">
+    <ClCompile Include="digdug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

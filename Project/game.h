@@ -18,6 +18,7 @@ class Game : public GameObject
 	Player * player;
 
 	Sprite * life_sprite;
+	Sprite* background_sprite;
 	bool game_over = false;
 
 	unsigned int score = 0;
@@ -47,15 +48,17 @@ public:
 
 		grid = new Grid();
 
-		GridBehaviourComponent* grid_behaviour = new GridBehaviourComponent();
-		grid_behaviour->Create(engine, grid, &game_objects, player, 60, 720, 960);
+		GridComponent* grid_component = new GridComponent(); 
+		std::vector<GameObject*> * placeholder = new std::vector<GameObject*>;
+		grid_component->Create(engine, grid, &game_objects, player, placeholder /*CHANGE*/, CELL_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT);
 		grid->Create();
-		grid->AddComponent(grid_behaviour);
+		grid->AddComponent(grid_component);
 
 		player->AddReceiver(this);
 
-		game_objects.insert(player);
+		
 		game_objects.insert(grid);
+		game_objects.insert(player);
 
 		// Create all rockets and their behaviours + rendering components
 		rockets_pool.Create(MAX_NUM_ROCKETS);
@@ -103,6 +106,7 @@ public:
 			(*bomb)->AddComponent(render);
 		}
 		life_sprite = engine->createSprite("data/player.bmp");
+		background_sprite = engine->createSprite("data/background.bmp");
 	}
 	//Initialize player and aliens
 	virtual void Init()
@@ -140,7 +144,7 @@ public:
 			(*alien)->Init(x, y);
 		}
 		*/
-		game_speed *= 1.2;
+		game_speed *= 1.2f;
 	}
 	//Update the game
 	virtual void Update(float dt)
@@ -158,9 +162,12 @@ public:
 		else
 			running = 1.0;
 
+		background_sprite->draw(0, 58);
+
 		for (auto go = game_objects.begin(); go != game_objects.end(); go++)
 			(*go)->Update(dt * running);
 
+		player->Update(0);
 		/*
 		if ((engine->getElapsedTime() - last_time_bomb) >= (BOMB_TIME_INTERVAL / game_speed)) {
 			alien_pool.SelectRandom()->fire = true;
@@ -171,6 +178,8 @@ public:
 	//Draws the text and health sprite
 	virtual void Draw()
 	{
+		
+
 		char text[100];
 
 		snprintf(text, 100, "%07d", score);
@@ -180,13 +189,14 @@ public:
 		engine->drawText(510, 32, text);
 
 		for (int i = 0; i < player->lives; i++) {
-			life_sprite->draw(32 + (36 * i), 25);
+			life_sprite->draw(32 * i, SCREEN_HEIGHT - 32);
 		}
 
 		if (game_over) {
 			snprintf(text, 100, "*** G A M E   O V E R ***");
 			engine->drawText(250, 10, text);
 		}
+		
 		engine->swapBuffers();
 		engine->clearWindow();
 	}

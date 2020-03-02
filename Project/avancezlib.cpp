@@ -12,7 +12,7 @@ bool AvancezLib::init(int width, int height)
 	}
 
 	//Create window
-	window = SDL_CreateWindow("aVANCEZ", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
+	window = SDL_CreateWindow("Dig Dug", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
 	if (window == NULL)
 	{
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Window could not be created! SDL_Error: %s\n", SDL_GetError());
@@ -39,7 +39,7 @@ bool AvancezLib::init(int width, int height)
 	key.pump = false;	key.left = false; key.right = false; key.up = false; key.down = false; key.esc = false;
 
 	//Initialize renderer color
-	SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
 	//Clear screen
 	SDL_RenderClear(renderer);

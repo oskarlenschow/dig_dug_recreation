@@ -19,6 +19,7 @@ protected:
 
 public:
 	Vector2D position;
+
 	DIRECTION direction;
 	bool enabled;
 
@@ -35,7 +36,7 @@ public:
 	virtual void AddReceiver(GameObject *go);
 	virtual void Receive(Message m) {}
 	void Send(Message m);
-
+	/*
 	template<typename T>
 	T GetComponent() {
 		for (Component* c : components) {
@@ -47,4 +48,5 @@ public:
 
 		return nullptr;
 	}
+	*/
 };
