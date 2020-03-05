@@ -1,6 +1,14 @@
 ﻿  grid.cpp
-C:\gea\Project\grid.cpp(75,72): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(75,46): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(83,66): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(83,42): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+C:\gea\Project\grid.cpp(45,21): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\gea\Project\grid.cpp(46,21): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\gea\Project\grid.cpp(48,19): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\gea\Project\grid.cpp(49,19): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\gea\Project\grid.cpp(51,24): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\gea\Project\grid.cpp(52,24): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\gea\Project\grid.cpp(54,24): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\gea\Project\grid.cpp(55,24): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\gea\Project\grid.cpp(82,45): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+C:\gea\Project\grid.cpp(82,25): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+C:\gea\Project\grid.cpp(89,49): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+C:\gea\Project\grid.cpp(89,27): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
   Project.vcxproj -> C:\gea\Project\x64\Debug\Project.exe

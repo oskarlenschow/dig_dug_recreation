@@ -50,7 +50,7 @@ public:
 
 		GridComponent* grid_component = new GridComponent(); 
 		std::vector<GameObject*> * placeholder = new std::vector<GameObject*>;
-		grid_component->Create(engine, grid, &game_objects, player, placeholder /*CHANGE*/, CELL_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT);
+		grid_component->Create(engine, grid, &game_objects, player, placeholder /*CHANGE*/, CELL_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, 4);
 		grid->Create();
 		grid->AddComponent(grid_component);
 

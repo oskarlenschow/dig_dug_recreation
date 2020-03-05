@@ -7,7 +7,7 @@
 #include <vector>
 
 
-enum Message { HIT, CELL_DUG, GAME_OVER, WALL };
+enum Message { HIT, GAME_OVER, BOTH_DIRECTIONS, WALL, DIGGING, NOT_DIGGING};
 
 class Component;
 
@@ -19,8 +19,11 @@ protected:
 
 public:
 	Vector2D position;
+	Vector2D dimensions;
+	int bb_left, bb_right, bb_top, bb_bottom;
 
 	DIRECTION direction;
+	DIRECTION_AXIS axis;
 	bool enabled;
 
 	virtual ~GameObject();

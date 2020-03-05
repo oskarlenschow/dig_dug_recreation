@@ -48,35 +48,4 @@ class CollideComponent : public Component
 public:
 	virtual void Create(AvancezLib* engine, GameObject * go, std::set<GameObject*> * game_objects, ObjectPool<GameObject> * coll_objects);
 	virtual void Update(float dt);
-};/*
-class CellComponent : public Component
-{
-	int percentage_dug;
-	DIRECTION direction;
-	std::vector<GameObject*> hosted_objects;
-public:
-	
-	virtual void Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, int percentage_dug);
-	virtual void Update(float dt);
-	virtual void push_back(GameObject*);
-	virtual std::vector<GameObject*> get_hosted_objects();
-
 };
-class SpatialHashBehaviourComponent : public Component
-{
-	std::unordered_map<int, CellComponent> spatialHash;
-	std::set<GameObject*> * hostable_objects;
-
-	double cellSize;
-	int numColumns, numRows, width, height;
-
-private:
-	inline int from2Dto1Dindex(int x, int y) { return x + y * numColumns; }
-
-public:
-
-	virtual void Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, std::set<GameObject*> * hostable_objects, double cellSize, int width, int height);
-	virtual void Update(float dt);
-	virtual std::set<GameObject*> QueryGridNeighbors(Vector2D position);
-};
-*/

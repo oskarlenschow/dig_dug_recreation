@@ -4,6 +4,7 @@
 #include "SDL_ttf.h"
 
 enum class DIRECTION { LEFT, RIGHT, UP, DOWN, NONE};
+enum class DIRECTION_AXIS { HORIZONTAL, VERTICAL, BOTH};
 
 class Sprite
 {
