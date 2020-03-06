@@ -22,8 +22,28 @@ void RenderComponent::Update(float dt)
 	if (!go->enabled)
 		return;
 
-	if (sprite)
-		sprite->draw(int(go->position.x), int(go->position.y));
+	if (sprite) {
+		SDL_RendererFlip flip = SDL_FLIP_NONE;
+		double angle = 0;
+
+		switch (go->direction)
+		{
+		case DIRECTION::LEFT:
+			flip = SDL_FLIP_HORIZONTAL;
+			break;
+		case DIRECTION::UP:
+			angle = 270; 
+			break;
+		case DIRECTION::DOWN:
+			angle = 90;
+			break;
+		default:
+			break;
+		}
+		sprite->draw(int(go->position.x), int(go->position.y), angle, NULL, flip);
+
+
+	}
 }
 
 void RenderComponent::Destroy()

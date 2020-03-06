@@ -134,8 +134,8 @@ public:
 
 		if (go->position.y > SCREEN_HEIGHT - CELL_SIZE * 2)
 			go->position.y = SCREEN_HEIGHT - CELL_SIZE * 2;
-		else if (go->position.y < 0)
-			go->position.y = 0;
+		else if (go->position.y < CELL_SIZE * 2)
+			go->position.y = CELL_SIZE * 2;
 	}
 
 	// return true if enough time has passed from the previous rocket
@@ -162,8 +162,9 @@ public:
 		GameObject::Init();
 		lives = NUM_LIVES;
 		axis = DIRECTION_AXIS::BOTH;
-		position.x = 0;
-		position.y = 0;
+		direction = DIRECTION::LEFT;
+		position.x = SCREEN_WIDTH - CELL_SIZE;
+		position.y = CELL_SIZE * 2;
 		dimensions.x = CELL_SIZE;
 		dimensions.y = CELL_SIZE;
 	}

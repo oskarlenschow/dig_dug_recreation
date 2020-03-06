@@ -33,23 +33,22 @@ class GridComponent : public Component {
 	int course_columns, course_rows, fine_columns, fine_rows, width, height, fine_per_course;
 	std::vector<GameObject*> * collision_objects;
 	GameObject* player;
-	Sprite* fine_digout;
-	Sprite* course_digout;
-
+	Sprite* digout_small;
+	Sprite* digout_full;
+	Sprite* digout_corner;
+	Sprite* digout_end;
 private:
 	inline int from2Dto1Dindex(int x, int y, int columns) { return x + y * columns; }
 public:
 
 	virtual void Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, GameObject* player, std::vector<GameObject*>* collision_objects, double cellSize, int width, int height, int fine_per_course);
 	virtual void Update(float dt);
+	virtual void CalculateAndRender(); //Because there is so much logic involved in the rendering of the grid, this is not it's own rendering component
+
 	//virtual std::set<GameObject*> QueryGridNeighbors(Vector2D position);
 };
 
 class GridCollisionComponent : public Component {
-
-};
-
-class GridRenderComponent : public Component {
 
 };
 

@@ -206,8 +206,10 @@ Sprite::Sprite(SDL_Renderer* renderer, SDL_Texture* texture)
 	this->texture = texture;
 }
 
-
-void Sprite::draw(int x, int y)
+void Sprite::draw(int x, int y) {
+	draw(x, y, 0, NULL, SDL_FLIP_NONE);
+}
+void Sprite::draw(int x, int y, double angle, SDL_Point* center, SDL_RendererFlip flip)
 {
 	SDL_Rect rect;
 
@@ -217,7 +219,8 @@ void Sprite::draw(int x, int y)
 	SDL_QueryTexture(texture, NULL, NULL, &(rect.w), &(rect.h));
 
 	//Render texture to screen
-	SDL_RenderCopy(renderer, texture, NULL, &rect);
+	//SDL_RenderCopy(renderer, texture, NULL, &rect);
+	SDL_RenderCopyEx(renderer, texture, NULL, &rect, angle, center, flip);
 }
 
 

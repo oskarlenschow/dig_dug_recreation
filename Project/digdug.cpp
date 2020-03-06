@@ -12,9 +12,10 @@ const unsigned int	MAX_NUM_ROCKETS = 32;
 const unsigned int	MAX_NUM_BOMBS = 32;
 const unsigned int	POINTS_PER_ALIEN = 100;
 
-const unsigned int  SCREEN_WIDTH = 384;
-const unsigned int	SCREEN_HEIGHT = 512;
+
 const unsigned int	CELL_SIZE = 32;
+const unsigned int  SCREEN_WIDTH = CELL_SIZE * 14;
+const unsigned int	SCREEN_HEIGHT = CELL_SIZE * 18;
 
 const float			FIRE_TIME_INTERVAL = .5f;
 const float			BOMB_TIME_INTERVAL = 1.25f;

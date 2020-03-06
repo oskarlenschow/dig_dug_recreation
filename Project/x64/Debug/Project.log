@@ -1,14 +1,34 @@
 ﻿  grid.cpp
-C:\gea\Project\grid.cpp(45,21): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(46,21): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(48,19): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(49,19): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(51,24): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(52,24): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(54,24): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(55,24): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(82,45): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(82,25): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(89,49): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(89,27): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-  Project.vcxproj -> C:\gea\Project\x64\Debug\Project.exe
+D:\GL\Project\grid.cpp(50,21): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(51,21): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(53,19): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(54,19): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(56,24): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(57,24): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(59,24): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(60,24): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(110,67): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(110,42): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(112,67): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(112,35): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(166,65): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(166,36): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(168,65): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(168,36): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(170,65): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(170,36): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(172,65): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(172,36): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(177,62): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(177,33): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(180,62): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(180,33): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(184,61): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(184,32): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(187,61): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(187,32): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(190,61): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(190,32): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(193,61): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\grid.cpp(193,32): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+  Project.vcxproj -> D:\GL\Project\x64\Debug\Project.exe

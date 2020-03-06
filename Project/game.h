@@ -162,7 +162,7 @@ public:
 		else
 			running = 1.0;
 
-		background_sprite->draw(0, 58);
+		background_sprite->draw(0, 0);
 
 		for (auto go = game_objects.begin(); go != game_objects.end(); go++)
 			(*go)->Update(dt * running);
