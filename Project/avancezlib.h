@@ -2,6 +2,7 @@
 
 #include "SDL.h"
 #include "SDL_ttf.h"
+#include "SDL_image.h"
 
 enum class DIRECTION { LEFT, RIGHT, UP, DOWN, NONE};
 enum class DIRECTION_AXIS { HORIZONTAL, VERTICAL, BOTH};
@@ -23,6 +24,9 @@ public:
 	// (All sprites are 32*32 pixels, clipping is not supported)
 	void draw(int x, int y);
 	void draw(int x, int y, double angle, SDL_Point* center, SDL_RendererFlip flip);
+
+	unsigned int getImageWidth();
+	unsigned int getImageHeight();
 };
 
 
@@ -52,14 +56,14 @@ public:
 	Sprite* createSprite(const char* name);
 
 	// Draws the given text.
-	void drawText(int x, int y, const char* msg);
+	void drawText(int x, int y, const char* msg, SDL_Color color, int size);
 
 	// Return the total time spent in the game, in seconds.
 	float getElapsedTime();
 
 	struct KeyStatus
 	{
-		bool pump; // space
+		bool space; // space
 		bool left; // left arrow
 		bool right; // right arrow
 		bool up;

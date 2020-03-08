@@ -11,19 +11,25 @@ class Game : public GameObject
 
 	ObjectPool<Bomb> bomb_pool;			// used to instantiate bombs
 
-	//ObjectPool<Alien> alien_pool;		// used to instantiate aliens
+	ObjectPool<Pookah> pookah_pool;		// used to instantiate pookahs
+
+	ObjectPool<Fygar> fygar_pool;		// used to instantiate fygars
 
 	Grid * grid;
 
 	Player * player;
 
 	Sprite * life_sprite;
+	Sprite * level_sprite;
 	Sprite* background_sprite;
+
 	bool game_over = false;
+	bool wait = false;
 
 	unsigned int score = 0;
-	int aliens = 0;				//Tracks how many aliens are left. Can I count the pool somehow?
+	unsigned int level = 1;
 	float last_time_bomb = 0;	//Last time since bomb.
+	bool flashing_text;
 
 public:
 
@@ -38,9 +44,14 @@ public:
 		PlayerBehaviourComponent* player_behaviour = new PlayerBehaviourComponent();
 		player_behaviour->Create(engine, player, &game_objects, &rockets_pool);
 		RenderComponent * player_render = new RenderComponent();
-		player_render->Create(engine, player, &game_objects, "data/player.bmp");
-		//CollideComponent* player_collide = new CollideComponent();
-		//CollideComponent* player_collide_2 = new CollideComponent();
+		player_render->Create(engine, player, &game_objects, "data/sprites/player_walk_0.png", 15.f);
+		player_render->AddSprite("data/sprites/player_walk_1.png", WALKING);
+		player_render->AddSprite("data/sprites/player_digging_0.png", DIGGING);
+		player_render->AddSprite("data/sprites/player_digging_1.png", DIGGING);
+		player_render->AddSprite("data/sprites/player_walk_1.png", IDLE);
+		player_render->AddSprite("data/sprites/player_pumping_0.png", ATTACKING);
+		player_render->AddSprite("data/sprites/player_pumping_1.png", ATTACKING);
+	
 
 		player->Create();
 		player->AddComponent(player_behaviour);
@@ -48,51 +59,84 @@ public:
 
 		grid = new Grid();
 
-		GridComponent* grid_component = new GridComponent(); 
-		std::vector<GameObject*> * placeholder = new std::vector<GameObject*>;
-		grid_component->Create(engine, grid, &game_objects, player, placeholder /*CHANGE*/, CELL_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, 4);
-		grid->Create();
-		grid->AddComponent(grid_component);
+		GridPlayerComponent* grid_player_component = new GridPlayerComponent(); 
+		grid_player_component->Create(engine, grid, &game_objects, player);
+
+		GridRenderComponent* grid_render_component = new GridRenderComponent();
+		grid_render_component->Create(engine, grid, &game_objects);
+
+		grid->Create(CELL_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, 4);
+		grid->AddComponent(grid_player_component);
+		grid->AddComponent(grid_render_component);
+		grid->AddReceiver(this);
+
+
 
 		player->AddReceiver(this);
-
-		
 		game_objects.insert(grid);
 		game_objects.insert(player);
 
-		// Create all rockets and their behaviours + rendering components
-		rockets_pool.Create(MAX_NUM_ROCKETS);
-		for (auto rocket = rockets_pool.pool.begin(); rocket != rockets_pool.pool.end(); rocket++)
+		// Create all pookahs and their behaviours + rendering components
+		
+		pookah_pool.Create(3);
+		for (auto pookah = pookah_pool.pool.begin(); pookah != pookah_pool.pool.end(); pookah++)
 		{
-			RocketBehaviourComponent * behaviour = new RocketBehaviourComponent();
-			behaviour->Create(engine, *rocket, &game_objects);
-			RenderComponent * render = new RenderComponent();
-			render->Create(engine, *rocket, &game_objects, "data/rocket.bmp");
-			(*rocket)->Create();
-			(*rocket)->AddComponent(behaviour);
-			(*rocket)->AddComponent(render);
+			PookahBehaviourComponent* pookah_behaviour_component = new PookahBehaviourComponent();
+			pookah_behaviour_component->Create(engine, *pookah, &game_objects, &bomb_pool);
+			RenderComponent* pookah_render_component = new RenderComponent();
+			pookah_render_component->Create(engine, *pookah, &game_objects, "data/sprites/pookah_walk_0.png", 3.f);
+			pookah_render_component->AddSprite("data/sprites/pookah_walk_1.png", WALKING);
+			pookah_render_component->AddSprite("data/sprites/pookah_digging_0.png", DIGGING);
+			pookah_render_component->AddSprite("data/sprites/pookah_digging_1.png", DIGGING);
+
+			(*pookah)->Create();
+			(*pookah)->AddComponent(pookah_behaviour_component);
+			(*pookah)->AddComponent(pookah_render_component);
+			(*pookah)->AddReceiver(this);
+			AddReceiver(*pookah);  //NOT NEEDED NOW?
+			game_objects.insert(*pookah);
+		}
+		
+		// Create all fygars and their behaviours + rendering components
+
+		fygar_pool.Create(1);
+		for (auto fygar = fygar_pool.pool.begin(); fygar != fygar_pool.pool.end(); fygar++)
+		{
+			FygarBehaviourComponent* fygar_behaviour_component = new FygarBehaviourComponent();
+			fygar_behaviour_component->Create(engine, *fygar, &game_objects, &bomb_pool);
+			RenderComponent* fygar_render_component = new RenderComponent();
+			fygar_render_component->Create(engine, *fygar, &game_objects, "data/sprites/fygar_walk_0.png", 6.f);
+			fygar_render_component->AddSprite("data/sprites/fygar_walk_1.png", WALKING);
+			fygar_render_component->AddSprite("data/sprites/fygar_fire_0.png", ATTACKING);
+			fygar_render_component->AddSprite("data/sprites/fygar_digging_0.png", DIGGING);
+			fygar_render_component->AddSprite("data/sprites/fygar_digging_1.png", DIGGING);
+
+			(*fygar)->Create();
+			(*fygar)->AddComponent(fygar_behaviour_component);
+			(*fygar)->AddComponent(fygar_render_component);
+			(*fygar)->AddReceiver(this);
+			AddReceiver(*fygar);  //NOT NEEDED NOW?
+			game_objects.insert(*fygar);
 		}
 		/*
-		// Create all aliens and their behaviours + rendering components + collisions
-		alien_pool.Create(55);
-		for (auto alien = alien_pool.pool.begin(); alien != alien_pool.pool.end(); alien++)
-		{
-			AlienBehaviourComponent* alien_behaviour = new AlienBehaviourComponent();
-			alien_behaviour->Create(engine, *alien, &game_objects, &bomb_pool);
-			RenderComponent* alien_render = new RenderComponent();
-			alien_render->Create(engine, *alien, &game_objects, "data/enemy_0.bmp");
-			CollideComponent* alien_collide = new CollideComponent();
-			alien_collide->Create(engine, *alien, &game_objects, (ObjectPool<GameObject> *) &rockets_pool);
+		CollideComponent* pookah_collide_component = new CollideComponent();
+		pookah_collide_component->Create(engine, player, &game_objects, (ObjectPool<GameObject>*) &pookah_pool);
+		player->AddComponent(pookah_collide_component);
 
-			(*alien)->Create();
-			(*alien)->AddComponent(alien_behaviour);
-			(*alien)->AddComponent(alien_render);
-			(*alien)->AddComponent(alien_collide);
-			(*alien)->AddReceiver(this);
-			AddReceiver(*alien);
-			game_objects.insert(*alien);
-		}
+		CollideComponent* fygar_collide_component = new CollideComponent();
+		fygar_collide_component->Create(engine, player, &game_objects, (ObjectPool<GameObject>*) &fygar_pool);
+		player->AddComponent(fygar_collide_component);
 		*/
+		vector<ObjectPool<GameObject>*> collision_pools;
+		collision_pools.push_back((ObjectPool<GameObject>*) &pookah_pool);
+		collision_pools.push_back((ObjectPool<GameObject>*) &fygar_pool);
+
+		GridCollideComponent* grid_collide_component = new GridCollideComponent();
+		grid_collide_component->Create(engine, grid, &game_objects, collision_pools, player);
+
+		grid->AddComponent(grid_collide_component);
+
+
 		// Create all bombs and their behaviours + rendering components
 		bomb_pool.Create(MAX_NUM_BOMBS);
 		for (auto bomb = bomb_pool.pool.begin(); bomb != bomb_pool.pool.end(); bomb++)
@@ -100,12 +144,13 @@ public:
 			BombBehaviourComponent* behaviour = new BombBehaviourComponent();
 			behaviour->Create(engine, *bomb, &game_objects);
 			RenderComponent* render = new RenderComponent();
-			render->Create(engine, *bomb, &game_objects, "data/bomb.bmp");
+			render->Create(engine, *bomb, &game_objects, "data/bomb.bmp", 0.f);
 			(*bomb)->Create();
 			(*bomb)->AddComponent(behaviour);
 			(*bomb)->AddComponent(render);
 		}
-		life_sprite = engine->createSprite("data/player.bmp");
+		life_sprite = engine->createSprite("data/sprites/player_digging_0.png");
+		level_sprite = engine->createSprite("data/sprites/flower.png");
 		background_sprite = engine->createSprite("data/background.bmp");
 	}
 	//Initialize player and aliens
@@ -113,43 +158,39 @@ public:
 	{
 		player->Init();
 		grid->Init();
-		/*
-		int x = 0, y = 25, counter = 0;
-		for (auto alien = alien_pool.pool.begin(); alien != alien_pool.pool.end(); alien++)
-		{
-			x += 40;
-			aliens++;
-			if (!((counter++) % 11)) {
-				y += 32;
-				x = 100;
-			}
-			(*alien)->Init(x, y);
-		}
-		*/
+		
+		pookah_pool.pool.at(0)->Init(2 * CELL_SIZE, 5 * CELL_SIZE);
+		pookah_pool.pool.at(1)->Init(10 * CELL_SIZE, 4 * CELL_SIZE);
+		pookah_pool.pool.at(2)->Init(9 * CELL_SIZE, 12 * CELL_SIZE);
+
+		fygar_pool.pool.at(0)->Init(2 * CELL_SIZE, 12 * CELL_SIZE);
+
 		enabled = true;
 	}
 	//Generate the next level
 	void nextLevel() {
-		/*
-		int x = 0, y = 25, counter = 0;
-		for (auto alien = alien_pool.pool.begin(); alien != alien_pool.pool.end(); alien++)
-		{
-			x += 40;
-			aliens++;
-			if (!((counter++) % 11)) {
-				y += 32;
-				x = 100;
-			}
+		level++;
 
-			(*alien)->Init(x, y);
-		}
-		*/
-		game_speed *= 1.2f;
+		player->position.x = 6 * CELL_SIZE;
+		player->position.y = 9 * CELL_SIZE;
+
+
+		grid->Reset();
+		
+		POOKAH_SPEED *= 1.2f;
+		FYGAR_SPEED *= 1.2f;
 	}
 	//Update the game
 	virtual void Update(float dt)
 	{
 		AvancezLib::KeyStatus keys;
+
+		int elapsed_time = engine->getElapsedTime() * 1000.f;
+
+		if (elapsed_time % 1000 == 0)
+			cout << elapsed_time << endl;
+			//flashing_text = !flashing_text;
+
 		engine->getKeyStatus(keys);
 		if (keys.esc) {
 			Destroy();
@@ -178,23 +219,29 @@ public:
 	//Draws the text and health sprite
 	virtual void Draw()
 	{
-		
-
+		SDL_Color red = { 255, 0, 0 };
 		char text[100];
 
-		snprintf(text, 100, "%07d", score);
-		engine->drawText(300, 32, text);
+		if(!flashing_text)
+			engine->drawText(60, 17, "1UP", { 255, 0, 0 }, 16);
 
-		snprintf(text, 100, "BONUS: %.1fX", game_speed);
-		engine->drawText(510, 32, text);
+		snprintf(text, 100, "%d", score);
+		engine->drawText(70, 34, text, { 255, 255, 255 }, 16);
+
+		engine->drawText(SCREEN_WIDTH/2 - 80, 17, "HIGH SCORE", { 255, 0, 0 }, 16);
+
 
 		for (int i = 0; i < player->lives; i++) {
-			life_sprite->draw(32 * i, SCREEN_HEIGHT - 32);
+			life_sprite->draw(CELL_SIZE * i, SCREEN_HEIGHT - CELL_SIZE);
+		}
+
+		for (int i = level; i > 0; i--) {
+			level_sprite->draw(SCREEN_WIDTH - CELL_SIZE * i,  CELL_SIZE * 2);
 		}
 
 		if (game_over) {
 			snprintf(text, 100, "*** G A M E   O V E R ***");
-			engine->drawText(250, 10, text);
+			engine->drawText(250, 10, text, { 255, 255, 255 }, 25);
 		}
 		
 		engine->swapBuffers();
@@ -207,10 +254,15 @@ public:
 		{
 			game_over = true;
 		}
-
-
 		if (m == WALL) {
 			Send(WALL);
+		}
+		if (m == SCORE_UP) {
+			score += 10;
+			if (score >= 300) {
+				nextLevel();
+				score = 0;
+			}
 		}
 	}
 	//Destroy everything

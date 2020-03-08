@@ -7,7 +7,7 @@
 #include <vector>
 
 
-enum Message { HIT, GAME_OVER, BOTH_DIRECTIONS, WALL, DIGGING, NOT_DIGGING};
+enum Message { HIT, GAME_OVER, BOTH_DIRECTIONS, WALL, DIG, WALK, SCORE_UP};
 
 class Component;
 
@@ -20,11 +20,11 @@ protected:
 public:
 	Vector2D position;
 	Vector2D dimensions;
-	int bb_left, bb_right, bb_top, bb_bottom;
 
 	DIRECTION direction;
 	DIRECTION_AXIS axis;
-	bool enabled;
+	bool enabled, moving;
+	int mode;
 
 	virtual ~GameObject();
 
@@ -39,7 +39,7 @@ public:
 	virtual void AddReceiver(GameObject *go);
 	virtual void Receive(Message m) {}
 	void Send(Message m);
-	/*
+	
 	template<typename T>
 	T GetComponent() {
 		for (Component* c : components) {
@@ -51,5 +51,5 @@ public:
 
 		return nullptr;
 	}
-	*/
+	
 };

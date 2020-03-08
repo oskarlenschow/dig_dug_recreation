@@ -28,7 +28,7 @@ bool AvancezLib::init(int width, int height)
 	}
 
 	TTF_Init();
-	font = TTF_OpenFont("data/space_invaders.ttf", 12); //this opens a font style and sets a size
+	font = TTF_OpenFont("data/fonts/space_invaders.ttf", 12); //this opens a font style and sets a size
 	if (font == NULL)
 	{
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "font cannot be created! SDL_Error: %s\n", SDL_GetError());
@@ -36,7 +36,7 @@ bool AvancezLib::init(int width, int height)
 	}
 
 	// initialize the keys
-	key.pump = false;	key.left = false; key.right = false; key.up = false; key.down = false; key.esc = false;
+	key.space = false;	key.left = false; key.right = false; key.up = false; key.down = false; key.esc = false;
 
 	//Initialize renderer color
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -84,7 +84,7 @@ void AvancezLib::processInput()
 				key.esc = true;
 				break;
 			case SDLK_SPACE:
-				key.pump = true;
+				key.space = true;
 				break;
 			case SDLK_a:
 			case SDLK_LEFT:
@@ -110,7 +110,7 @@ void AvancezLib::processInput()
 			switch (event.key.keysym.sym)
 			{
 			case SDLK_SPACE:
-				key.pump = false;
+				key.space = false;
 				break;
 			case SDLK_a:
 			case SDLK_LEFT:
@@ -147,7 +147,9 @@ void AvancezLib::clearWindow() {
 
 Sprite* AvancezLib::createSprite(const char* path)
 {
-	SDL_Surface* surf = SDL_LoadBMP(path);
+	//SDL_Surface* surf = SDL_LoadBMP(path);
+	SDL_Surface* surf = IMG_Load(path);
+
 	if (surf == NULL)
 	{
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unable to load image %s! SDL_image Error: %s\n", path, SDL_GetError());
@@ -170,13 +172,14 @@ Sprite* AvancezLib::createSprite(const char* path)
 	return sprite;
 }
 
-void AvancezLib::drawText(int x, int y, const char* msg)
+void AvancezLib::drawText(int x, int y, const char* msg, SDL_Color color, int size)
 {
-	SDL_Color black = { 0, 0, 0 };  // this is the color in rgb format, maxing out all would give you the color white, and it will be your text's color
+	
+	font = TTF_OpenFont("data/fonts/PressStart2P.ttf", size); //this opens a font style and sets a size
 
-	SDL_Surface* surf = TTF_RenderText_Solid(font, msg, black); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first
+	SDL_Surface* surface = TTF_RenderText_Solid(font, msg, color); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first
 
-	SDL_Texture* msg_texture = SDL_CreateTextureFromSurface(renderer, surf); //now you can convert it into a texture
+	SDL_Texture* msg_texture = SDL_CreateTextureFromSurface(renderer, surface); //now you can convert it into a texture
 
 	int w = 0;
 	int h = 0;
@@ -186,7 +189,7 @@ void AvancezLib::drawText(int x, int y, const char* msg)
 	SDL_RenderCopy(renderer, msg_texture, NULL, &dst_rect);
 
 	SDL_DestroyTexture(msg_texture);
-	SDL_FreeSurface(surf);
+	SDL_FreeSurface(surface);
 }
 
 float AvancezLib::getElapsedTime()
@@ -227,5 +230,17 @@ void Sprite::draw(int x, int y, double angle, SDL_Point* center, SDL_RendererFli
 void Sprite::destroy()
 {
 	SDL_DestroyTexture(texture);
+}
+
+unsigned int Sprite::getImageWidth() {
+	SDL_Rect rect;
+	SDL_QueryTexture(texture, NULL, NULL, &(rect.w), &(rect.h));
+	return rect.w;
+}
+
+unsigned int Sprite::getImageHeight() {
+	SDL_Rect rect;
+	SDL_QueryTexture(texture, NULL, NULL, &(rect.w), &(rect.h));
+	return rect.h;
 }
 

@@ -8,6 +8,8 @@ class GameObject;
 class AvancezLib;
 class Sprite;
 
+using namespace std;
+
 class Component
 {
 protected:
@@ -29,13 +31,22 @@ public:
 
 class RenderComponent : public Component
 {
+	unordered_map<int, vector<Sprite*>> sprites;
+	double sprite_index;
+	double animation_speed;
+
 	Sprite* sprite;
 
 public:
 
-	virtual void Create(AvancezLib* engine, GameObject * go, std::set<GameObject*> * game_objects, const char * sprite_name);
+	virtual void Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, const char* first_sprite, const double animation_speed);
 	virtual void Update(float dt);
-	virtual void Destroy();
+	virtual void Destroy(); 
+
+	virtual void AddSprite(const char* sprite_name, const int mode);
+	virtual void SetImageIndex(unsigned int index);
+	virtual void SetImageSpeed(const double speed);
+	virtual unsigned int GetImageIndex() { return sprite_index; };
 
 	Sprite * GetSprite() { return sprite; }
 };

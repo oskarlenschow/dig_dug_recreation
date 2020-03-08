@@ -24,30 +24,38 @@ public:
 		engine->getKeyStatus(keys);
 		float speed = dt * PLAYER_SPEED;
 
+		if (keys.space) {
+			go->mode = ATTACKING;
+			if (CanPump())
+			{
 
-		if (keys.right || keys.left) {
-			if (keys.right) 
+			}
+		}
+		else if (keys.right || keys.left) {
+			if (keys.right)
 				Move(speed, DIRECTION::RIGHT);
-			if (keys.left) 
+			if (keys.left)
 				Move(speed, DIRECTION::LEFT);
 		}
 		else if (keys.up || keys.down) {
-			if (keys.up) 
+			if (keys.up)
 				Move(speed, DIRECTION::UP);
 			if (keys.down)
 				Move(speed, DIRECTION::DOWN);
 		}
-		if (keys.pump)
-		{
-			if (CanPump())
-			{
-				
-			}
+		else {
+			go->moving = false;
+			go->mode = IDLE;
 		}
 	}
 	// move the player
 	void Move(float speed, DIRECTION dir)
 	{
+		go->moving = true;
+
+		if (go->mode == ATTACKING || go->mode == IDLE)  //This is merely to quickly change from attacking sprite visually, instead of waiting for the grid to tell player if it should walk or dig.
+			go->mode = WALKING;
+			
 		if (go->axis == DIRECTION_AXIS::BOTH) {
 			switch (dir)
 			{
@@ -86,7 +94,7 @@ public:
 			case DIRECTION::UP:
 				if (go->direction == DIRECTION::LEFT) //If axis is locked, move that axis until unlocked
 					go->position.x -= speed;
-				else if (go->direction == DIRECTION::RIGHT)
+				else if (go->direction == DIRECTION::RIGHT) 
 					go->position.x += speed;
 				break;
 			case DIRECTION::DOWN:
@@ -103,7 +111,7 @@ public:
 			switch (dir)
 			{
 			case DIRECTION::LEFT:
-				if (go->direction == DIRECTION::UP)
+				if (go->direction == DIRECTION::UP) //If axis is locked, move that axis until unlocked
 					go->position.y -= speed;
 				else if (go->direction == DIRECTION::DOWN)
 					go->position.y += speed;
@@ -127,13 +135,12 @@ public:
 			}
 		}
 
-		if (go->position.x > SCREEN_WIDTH - CELL_SIZE)
-			go->position.x = SCREEN_WIDTH - CELL_SIZE;
+		if (go->position.x + go->dimensions.x > SCREEN_WIDTH)
+			go->position.x = SCREEN_WIDTH - go->dimensions.x;
 		else if (go->position.x < 0)
 			go->position.x = 0;
-
-		if (go->position.y > SCREEN_HEIGHT - CELL_SIZE * 2)
-			go->position.y = SCREEN_HEIGHT - CELL_SIZE * 2;
+		if (go->position.y + go->dimensions.y > SCREEN_HEIGHT - CELL_SIZE)
+			go->position.y = SCREEN_HEIGHT - CELL_SIZE - go->dimensions.y;
 		else if (go->position.y < CELL_SIZE * 2)
 			go->position.y = CELL_SIZE * 2;
 	}
@@ -161,6 +168,7 @@ public:
 		SDL_Log("Player::Init");
 		GameObject::Init();
 		lives = NUM_LIVES;
+		mode = WALKING;
 		axis = DIRECTION_AXIS::BOTH;
 		direction = DIRECTION::LEFT;
 		position.x = SCREEN_WIDTH - CELL_SIZE;
@@ -185,9 +193,11 @@ public:
 			break;
 		case WALL:
 			break;
-		case DIGGING:
+		case DIG:
+			mode = DIGGING;
 			break;
-		case NOT_DIGGING:
+		case WALK:
+			mode = WALKING;
 			break;
 		default:
 			break;
