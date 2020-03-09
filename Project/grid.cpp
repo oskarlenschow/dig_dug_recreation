@@ -1,9 +1,11 @@
-
+#pragma once
 
 #include "grid.h"
 #include <iostream>
 
 using namespace std;
+extern float game_speed;
+extern float FYGAR_SPEED;
 
 void Grid::Create(double cellSize, int width, int height, int fine_per_course) {
 
@@ -269,6 +271,10 @@ void GridCollideComponent::Create(AvancezLib* engine, GameObject* go, std::set<G
 }
 void GridCollideComponent::Update(float dt) {
 
+	double clamp_length = dt * game_speed * FYGAR_SPEED;
+
+	//cout << clamp_length << endl;
+
 	for (int i = 0; i < collision_pools.size(); i++)
 
 		for (int j = 0; j < collision_pools[i]->pool.size(); j++)
@@ -277,34 +283,53 @@ void GridCollideComponent::Update(float dt) {
 			
 			if (go0->enabled)
 			{
+				bool path = false;
+				//Check if enemy is outside of bounds
+				Vector2D center_cell = Vector2D(floor((go0->position.x + (go0->dimensions.x / 2)) / grid->course_cell_size), 
+					floor((go0->position.y + (go0->dimensions.y / 2)) / grid->course_cell_size));
 				
-				int go0_start_column = go0->position.x / grid->course_cell_size;
-				int go0_start_row = go0->position.y / grid->course_cell_size;
+				Vector2D left_cell = Vector2D(floor((go0->position.x) / grid->course_cell_size),
+					floor((go0->position.y + (go0->dimensions.y / 2)) / grid->course_cell_size));
 
-				int start_x = go0_start_column * grid->course_cell_size;
-				int start_y = go0_start_row * grid->course_cell_size;
+				Vector2D right_cell = Vector2D(floor((go0->position.x + (go0->dimensions.x - 1)) / grid->course_cell_size),
+					floor((go0->position.y + (go0->dimensions.y / 2)) / grid->course_cell_size));
 
-				//Check collision with player
-				if ((go0->position.x < player->position.x + (player->dimensions.x - 10)) &&
-					(go0->position.x + go0->dimensions.x > (player->position.x + 10)) &&
-					(go0->position.y + go0->dimensions.y > (player->position.y+ 10)) &&
-					(go0->position.y < player->position.y + (player->dimensions.y- 10)))
-				{
-					go0->Receive(HIT);
-					player->Receive(HIT);
+				Vector2D top_cell = Vector2D(floor((go0->position.x + (go0->dimensions.x / 2)) / grid->course_cell_size),
+					floor((go0->position.y) / grid->course_cell_size));
+
+				Vector2D bottom_cell = Vector2D(floor((go0->position.x + (go0->dimensions.x / 2)) / grid->course_cell_size),
+					floor((go0->position.y + (go0->dimensions.y - 1)) / grid->course_cell_size));
+				
+				//Move enemy back in
+				if (!grid->course_grid[from2Dto1Dindex(left_cell.x, left_cell.y, grid->course_columns)]) {
+					go0->position.x = center_cell.x * grid->course_cell_size;
 				}
+				if (!grid->course_grid[from2Dto1Dindex(right_cell.x, right_cell.y, grid->course_columns)]) {
+					go0->position.x = center_cell.x * grid->course_cell_size;
+				}
+				if (!grid->course_grid[from2Dto1Dindex(top_cell.x, top_cell.y, grid->course_columns)]) {
+					go0->position.y = center_cell.y * grid->course_cell_size;
+				}
+				if (!grid->course_grid[from2Dto1Dindex(bottom_cell.x, bottom_cell.y, grid->course_columns)]) {
+					go0->position.y = center_cell.y * grid->course_cell_size;
+				}
+					
 
-				if ((int)go0->position.x == start_x && (int)go0->position.y == start_y) {
-					bool left = grid->course_grid[from2Dto1Dindex(go0_start_column - 1, go0_start_row, grid->course_columns)];
-					bool right = grid->course_grid[from2Dto1Dindex(go0_start_column + 1, go0_start_row, grid->course_columns)];
-					bool up = grid->course_grid[from2Dto1Dindex(go0_start_column, go0_start_row - 1, grid->course_columns)];
-					bool down = grid->course_grid[from2Dto1Dindex(go0_start_column, go0_start_row + 1, grid->course_columns)];
+				//TODO : PATHFIND!!!! Only store turningpoints
+				
+
+				//If there is no path
+				if (!path && go0->position.x == center_cell.x * grid->course_cell_size && go0->position.y == center_cell.y * grid->course_cell_size) {
+					bool left = grid->course_grid[from2Dto1Dindex(center_cell.x - 1, center_cell.y, grid->course_columns)];
+					bool right = grid->course_grid[from2Dto1Dindex(center_cell.x + 1, center_cell.y, grid->course_columns)];
+					bool up = grid->course_grid[from2Dto1Dindex(center_cell.x, center_cell.y - 1, grid->course_columns)];
+					bool down = grid->course_grid[from2Dto1Dindex(center_cell.x, center_cell.y + 1, grid->course_columns)];
 					bool preferred = false;
 
 					DIRECTION preferred_direction = DIRECTION::NONE;
 
-					int distance_x = player->position.x - start_x;
-					int distance_y = player->position.y - start_y;
+					int distance_x = player->position.x - center_cell.x * grid->course_cell_size;
+					int distance_y = player->position.y - center_cell.y * grid->course_cell_size;
 
 					if (abs(distance_x) > abs(distance_y)) {
 						if (distance_x > 0) {
@@ -382,10 +407,18 @@ void GridCollideComponent::Update(float dt) {
 						break;
 					}
 				}
-					
+				//Check collision with player
+				if ((go0->position.x < player->position.x + (player->dimensions.x - 10)) &&
+					(go0->position.x + go0->dimensions.x > (player->position.x + 10)) &&
+					(go0->position.y + go0->dimensions.y > (player->position.y + 10)) &&
+					(go0->position.y < player->position.y + (player->dimensions.y - 10)))
+				{
+					go0->Receive(HIT);
+					player->Receive(HIT);
+				}
 				
 				
-
+				
 				//go0->Receive(HIT);
 				
 			}

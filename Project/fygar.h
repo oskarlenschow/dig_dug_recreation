@@ -66,11 +66,11 @@ public:
 class FygarBehaviourComponent : public Component
 {
 	float last_time_fire;	// time from the last time the fire button was pressed
-	ObjectPool<Bomb>* bombs_pool;
+	ObjectPool<Rock>* bombs_pool;
 public:
 	virtual ~FygarBehaviourComponent() {}
 
-	virtual void Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, ObjectPool<Bomb>* bombs_pool)
+	virtual void Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, ObjectPool<Rock>* bombs_pool)
 	{
 		Component::Create(engine, go, game_objects);
 		this->bombs_pool = bombs_pool;
@@ -106,6 +106,8 @@ public:
 	// move the Fygar left or right, depending on direction
 	void Move(float move)
 	{
+		if (move > CELL_SIZE / 2)
+			move = CELL_SIZE / 2;
 		
 		switch (go->direction)
 		{

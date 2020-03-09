@@ -24,10 +24,10 @@ public:
 
 	virtual void Create(double cellSize, int width, int height, int fine_per_course);
 
-	virtual void Init()
+	virtual void Init(int x, int y)
 	{
 		SDL_Log("Grid::Init");
-		GameObject::Init();
+		GameObject::Init(x, y);
 	}
 	virtual void Receive(Message m)
 	{

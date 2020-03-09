@@ -15,10 +15,11 @@ void GameObject::AddComponent(Component * component)
 }
 
 
-void GameObject::Init()
+void GameObject::Init(int x, int y)
 {
 	SDL_Log("GameObject::Init");
-
+	position.x = x;
+	position.y = y;
 	for (auto it = components.begin(); it != components.end(); it++)
 		(*it)->Init();
 

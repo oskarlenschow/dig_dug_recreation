@@ -22,13 +22,13 @@
     <ClInclude Include="fygar.h" />
     <ClInclude Include="pookah.h" />
     <ClInclude Include="avancezlib.h" />
-    <ClInclude Include="bomb.h" />
+    <ClInclude Include="rock.h" />
     <ClInclude Include="component.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="game_object.h" />
     <ClInclude Include="grid.h" />
     <ClInclude Include="player.h" />
-    <ClInclude Include="rocket.h" />
+    <ClInclude Include="pump.h" />
     <ClInclude Include="vector2D.h" />
   </ItemGroup>
   <ItemGroup>

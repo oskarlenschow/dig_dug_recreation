@@ -5,17 +5,13 @@ class Pookah : public GameObject
 {
 public:
 
-	int lives;
-
 	virtual ~Pookah() { SDL_Log("Pookah::~Pookah"); }
 
 	virtual void Init(int x, int y)
 	{
 		SDL_Log("Pookah::Init");
-		GameObject::Init();
+		GameObject::Init(x, y);
 		direction = DIRECTION::RIGHT;
-		position.x = x;
-		position.y = y;
 	}
 	virtual void InitPos(int x, int y) {
 		SDL_Log("Pookah::InitPos");
@@ -29,59 +25,35 @@ public:
 			SDL_Log("Pookah::Hit!");
 			enabled = false;
 		}
-		if (m == WALL) {
-			//position.y += 32;
-		}
-	}
-
-	void RemoveLife()
-	{
-		lives--;
-		SDL_Log("remaining lives %d", lives);
 	}
 };
 
 class PookahBehaviourComponent : public Component
 {
-	float last_time_fire;	// time from the last time the fire button was pressed
-	ObjectPool<Bomb>* bombs_pool;
 public:
 	virtual ~PookahBehaviourComponent() {}
 
-	virtual void Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, ObjectPool<Bomb>* bombs_pool)
+	virtual void Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects)
 	{
 		Component::Create(engine, go, game_objects);
-		this->bombs_pool = bombs_pool;
 	}
 
 	virtual void Init()
 	{
-		last_time_fire = 0;
 	}
 
 	virtual void Update(float dt)
 	{
-		Move(dt * FYGAR_SPEED);
-
-
-		if (CanFire())
-		{
-			// fetches a rocket from the pool and use it in game_objects
-			Bomb* bomb = bombs_pool->FirstAvailable();
-			if (bomb != NULL)	// rocket is NULL is the object pool can not provide an object
-			{
-				bomb->Init(go->position.x, go->position.y + 32);
-				game_objects->insert(bomb);
-			}
-			//((Pookah*)go)->fire = false;
-		}
-		
+		Move(dt * POOKAH_SPEED);	
 	}
 
 
 	// move the Pookah left or right, depending on direction
 	void Move(float move)
 	{
+		if (move > CELL_SIZE / 2)
+			move = CELL_SIZE / 2;
+
 		switch (go->direction)
 		{
 		case DIRECTION::LEFT:
@@ -120,11 +92,5 @@ public:
 			go->position.y = CELL_SIZE * 2;
 			go->direction = DIRECTION::DOWN;
 		}
-	}
-
-	// return true if enough time has passed from the previous bomb
-	bool CanFire()
-	{
-		return false;
 	}
 };

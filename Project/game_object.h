@@ -31,7 +31,7 @@ public:
 	virtual void Create();
 	virtual void AddComponent(Component * component);
 
-	virtual void Init();
+	virtual void Init(int x, int y);
 	virtual void InitPos(int x, int y);
 	virtual void InitDir(DIRECTION dir);
 	virtual void Update(float dt);

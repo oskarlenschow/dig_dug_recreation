@@ -27,10 +27,10 @@ const unsigned int	SCREEN_HEIGHT = CELL_SIZE * 18;
 const float			FIRE_TIME_INTERVAL = .5f;
 const float			BOMB_TIME_INTERVAL = 1.25f;
 const float			PLAYER_SPEED = 70.0f;
-const float			ROCKET_SPEED = 160.0f;
+const float			PUMP_SPEED = 160.0f;
 	  float			POOKAH_SPEED = 80.0f;
       float			FYGAR_SPEED = 80.0f;
-const float			BOMB_SPEED = 120.0f;
+const float			ROCK_SPEED = 120.0f;
 
 
 float game_speed = 1.f;		// speed of the game; it is increased each time all the aliens are hit
@@ -41,8 +41,8 @@ float game_speed = 1.f;		// speed of the game; it is increased each time all the
 #include "game_object.h"
 
 
-#include "rocket.h"
-#include "bomb.h"
+#include "pump.h"
+#include "rock.h"
 #include "player.h"
 #include "pookah.h"
 #include "fygar.h"

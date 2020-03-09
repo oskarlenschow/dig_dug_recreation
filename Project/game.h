@@ -7,9 +7,7 @@ class Game : public GameObject
 	
 	AvancezLib* engine;
 
-	ObjectPool<Rocket> rockets_pool;	// used to instantiate rockets
-
-	ObjectPool<Bomb> bomb_pool;			// used to instantiate bombs
+	ObjectPool<Rock> rock_pool;			// used to instantiate bombs
 
 	ObjectPool<Pookah> pookah_pool;		// used to instantiate pookahs
 
@@ -18,6 +16,8 @@ class Game : public GameObject
 	Grid * grid;
 
 	Player * player;
+
+	Pump * pump;
 
 	Sprite * life_sprite;
 	Sprite * level_sprite;
@@ -40,9 +40,10 @@ public:
 		this->engine = engine;
 		// Create the player and the behaviour + rendering component + collision
 		player = new Player();
+		pump = new Pump();
 	
 		PlayerBehaviourComponent* player_behaviour = new PlayerBehaviourComponent();
-		player_behaviour->Create(engine, player, &game_objects, &rockets_pool);
+		player_behaviour->Create(engine, player, &game_objects, pump);
 		RenderComponent * player_render = new RenderComponent();
 		player_render->Create(engine, player, &game_objects, "data/sprites/player_walk_0.png", 15.f);
 		player_render->AddSprite("data/sprites/player_walk_1.png", WALKING);
@@ -51,6 +52,15 @@ public:
 		player_render->AddSprite("data/sprites/player_walk_1.png", IDLE);
 		player_render->AddSprite("data/sprites/player_pumping_0.png", ATTACKING);
 		player_render->AddSprite("data/sprites/player_pumping_1.png", ATTACKING);
+
+		RenderComponent* pump_render = new RenderComponent();
+		pump_render->Create(engine, pump, &game_objects, "data/sprites/pump_0", 0.f);
+		PumpBehaviourComponent* pump_behaviour = new PumpBehaviourComponent();
+		pump_behaviour->Create(engine, pump, &game_objects);
+
+		pump->Create();
+		pump->AddComponent(pump_behaviour);
+		pump->AddComponent(pump_render);
 	
 
 		player->Create();
@@ -82,7 +92,7 @@ public:
 		for (auto pookah = pookah_pool.pool.begin(); pookah != pookah_pool.pool.end(); pookah++)
 		{
 			PookahBehaviourComponent* pookah_behaviour_component = new PookahBehaviourComponent();
-			pookah_behaviour_component->Create(engine, *pookah, &game_objects, &bomb_pool);
+			pookah_behaviour_component->Create(engine, *pookah, &game_objects);
 			RenderComponent* pookah_render_component = new RenderComponent();
 			pookah_render_component->Create(engine, *pookah, &game_objects, "data/sprites/pookah_walk_0.png", 3.f);
 			pookah_render_component->AddSprite("data/sprites/pookah_walk_1.png", WALKING);
@@ -103,7 +113,7 @@ public:
 		for (auto fygar = fygar_pool.pool.begin(); fygar != fygar_pool.pool.end(); fygar++)
 		{
 			FygarBehaviourComponent* fygar_behaviour_component = new FygarBehaviourComponent();
-			fygar_behaviour_component->Create(engine, *fygar, &game_objects, &bomb_pool);
+			fygar_behaviour_component->Create(engine, *fygar, &game_objects, &rock_pool);
 			RenderComponent* fygar_render_component = new RenderComponent();
 			fygar_render_component->Create(engine, *fygar, &game_objects, "data/sprites/fygar_walk_0.png", 6.f);
 			fygar_render_component->AddSprite("data/sprites/fygar_walk_1.png", WALKING);
@@ -136,8 +146,7 @@ public:
 
 		grid->AddComponent(grid_collide_component);
 
-
-		// Create all bombs and their behaviours + rendering components
+		/*
 		bomb_pool.Create(MAX_NUM_BOMBS);
 		for (auto bomb = bomb_pool.pool.begin(); bomb != bomb_pool.pool.end(); bomb++)
 		{
@@ -149,6 +158,7 @@ public:
 			(*bomb)->AddComponent(behaviour);
 			(*bomb)->AddComponent(render);
 		}
+		*/
 		life_sprite = engine->createSprite("data/sprites/player_digging_0.png");
 		level_sprite = engine->createSprite("data/sprites/flower.png");
 		background_sprite = engine->createSprite("data/background.bmp");
@@ -156,13 +166,13 @@ public:
 	//Initialize player and aliens
 	virtual void Init()
 	{
-		player->Init();
-		grid->Init();
+		player->Init(0,0);
+		grid->Init(0,0);
 		
 		pookah_pool.pool.at(0)->Init(2 * CELL_SIZE, 5 * CELL_SIZE);
 		pookah_pool.pool.at(1)->Init(10 * CELL_SIZE, 4 * CELL_SIZE);
 		pookah_pool.pool.at(2)->Init(9 * CELL_SIZE, 12 * CELL_SIZE);
-
+		
 		fygar_pool.pool.at(0)->Init(2 * CELL_SIZE, 12 * CELL_SIZE);
 
 		enabled = true;
@@ -207,6 +217,12 @@ public:
 
 		for (auto go = game_objects.begin(); go != game_objects.end(); go++)
 			(*go)->Update(dt * running);
+
+		for (auto go = fygar_pool.pool.begin(); go != fygar_pool.pool.end(); go++)
+			(*go)->Update(0);
+
+		for (auto go = pookah_pool.pool.begin(); go != pookah_pool.pool.end(); go++)
+			(*go)->Update(0);
 
 		player->Update(0);
 		/*

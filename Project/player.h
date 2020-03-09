@@ -4,18 +4,19 @@
 
 class PlayerBehaviourComponent : public Component
 {
-
+	GameObject* pump;
 public:
 	virtual ~PlayerBehaviourComponent() {}
 
-	virtual void Create(AvancezLib* engine, GameObject * go, std::set<GameObject*> * game_objects, ObjectPool<Rocket> * rockets_pool)
+	virtual void Create(AvancezLib* engine, GameObject * go, std::set<GameObject*> * game_objects, GameObject * pump)
 	{
+
 		Component::Create(engine, go, game_objects);
+		this->pump = pump;
 	}
 
-	virtual void Init()
+	virtual void Init(int x, int y)
 	{
-
 	}
 
 	virtual void Update(float dt)
@@ -28,7 +29,11 @@ public:
 			go->mode = ATTACKING;
 			if (CanPump())
 			{
-
+				if (pump != NULL)	// rocket is NULL is the object pool can not provide an object
+				{
+					pump->Init(go->position.x, go->position.y + 32);
+					game_objects->insert(pump);
+				}
 			}
 		}
 		else if (keys.right || keys.left) {
@@ -163,10 +168,10 @@ public:
 
 	virtual ~Player()	{		SDL_Log("Player::~Player");	}
 
-	virtual void Init()
+	virtual void Init(int x, int y)
 	{
 		SDL_Log("Player::Init");
-		GameObject::Init();
+		GameObject::Init(x, y);
 		lives = NUM_LIVES;
 		mode = WALKING;
 		axis = DIRECTION_AXIS::BOTH;
