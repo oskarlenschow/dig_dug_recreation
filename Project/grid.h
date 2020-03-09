@@ -73,5 +73,6 @@ private:
 public:
 	virtual void Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, vector<ObjectPool<GameObject> *> collision_pools, GameObject* player);
 	virtual void Update(float dt);
+	virtual vector<pair<int, int>> GetPath(GameObject* go0);
 };
 

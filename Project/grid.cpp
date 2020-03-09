@@ -2,6 +2,7 @@
 
 #include "grid.h"
 #include <iostream>
+#include <queue>
 
 using namespace std;
 extern float game_speed;
@@ -316,10 +317,12 @@ void GridCollideComponent::Update(float dt) {
 					
 
 				//TODO : PATHFIND!!!! Only store turningpoints
-				
+				vector<pair<int, int>> cells = GetPath(go0);
+				cout << cells.size() << endl;
+				if (cells.size() > 0) {
 
-				//If there is no path
-				if (!path && go0->position.x == center_cell.x * grid->course_cell_size && go0->position.y == center_cell.y * grid->course_cell_size) {
+				}
+				else if (!path && go0->position.x == center_cell.x * grid->course_cell_size && go0->position.y == center_cell.y * grid->course_cell_size) {
 					bool left = grid->course_grid[from2Dto1Dindex(center_cell.x - 1, center_cell.y, grid->course_columns)];
 					bool right = grid->course_grid[from2Dto1Dindex(center_cell.x + 1, center_cell.y, grid->course_columns)];
 					bool up = grid->course_grid[from2Dto1Dindex(center_cell.x, center_cell.y - 1, grid->course_columns)];
@@ -416,11 +419,97 @@ void GridCollideComponent::Update(float dt) {
 					go0->Receive(HIT);
 					player->Receive(HIT);
 				}
-				
-				
-				
+
 				//go0->Receive(HIT);
 				
 			}
 		}
+}
+class QItem {
+public:
+	int row;
+	int col;
+	int dist;
+	vector<pair<int, int>> cells;
+	QItem(int x, int y, int w, vector<pair<int, int>> cells)
+		: row(x), col(y), dist(w), cells(cells)
+	{
+	}
+};
+vector<pair<int, int>> GridCollideComponent::GetPath(GameObject* go0)
+{
+
+	vector<pair<int, int>> cells;
+	cells.push_back(make_pair(go0->position.x / grid->course_cell_size, go0->position.y / grid->course_cell_size));
+
+	QItem source(0, 0, 0, cells);
+
+	// To keep track of visited QItems. Marking 
+	// blocked cells as visited. 
+
+	bool visited[14][18];    //TODO : Non-static size
+	for (int i = 0; i < 14; i++) {
+		for (int j = 0; j < 18; j++)
+		{
+			if (!grid->course_grid[from2Dto1Dindex( i, j, grid->course_columns)])
+				visited[i][j] = true;
+			else
+				visited[i][j] = false;
+		}
+	}
+	source.row = go0->position.x / grid->course_cell_size;
+	source.col = go0->position.y / grid->course_cell_size;
+
+	// applying BFS on matrix cells starting from source 
+	queue<QItem> q;
+	q.push(source);
+	visited[source.row][source.col] = true;
+	while (!q.empty()) {
+
+		QItem p = q.front();
+		q.pop();
+
+		// Destination found, check uppermost and lowermost point of player, just to make it work if player has dug half a block and origin point is technically in a disabled block.
+		if ((p.row == floor(player->position.x / grid->course_cell_size) && p.col == floor(player->position.y / grid->course_cell_size))
+			|| (p.row == floor((player->position.x + player->dimensions.x - 1) / grid->course_cell_size) && p.col == floor((player->position.y + player->dimensions.y - 1) / grid->course_cell_size))) {
+			return p.cells;
+		}
+		// moving up 
+		if (p.row - 1 >= 0 &&
+			visited[p.row - 1][p.col] == false) {
+			vector<pair<int, int>> cells = p.cells;
+			cells.push_back(make_pair(p.row - 1, p.col));
+			q.push(QItem(p.row - 1, p.col, p.dist + 1, cells));
+			visited[p.row - 1][p.col] = true;
+		}
+
+		// moving down 
+		if (p.row + 1 < 14 &&
+			visited[p.row + 1][p.col] == false) {
+			vector<pair<int, int>> cells = p.cells;
+			cells.push_back(make_pair(p.row + 1, p.col));
+			q.push(QItem(p.row + 1, p.col, p.dist + 1, cells));
+			visited[p.row + 1][p.col] = true;
+		}
+
+		// moving left 
+		if (p.col - 1 >= 0 &&
+			visited[p.row][p.col - 1] == false) {
+			vector<pair<int, int>> cells = p.cells;
+			cells.push_back(make_pair(p.row, p.col - 1));
+			q.push(QItem(p.row, p.col - 1, p.dist + 1, cells));
+			visited[p.row][p.col - 1] = true;
+		}
+
+		// moving right 
+		if (p.col + 1 < 18 &&
+			visited[p.row][p.col + 1] == false) {
+			vector<pair<int, int>> cells = p.cells;
+			cells.push_back(make_pair(p.row, p.col + 1));
+			q.push(QItem(p.row, p.col + 1, p.dist + 1, cells));
+			visited[p.row][p.col + 1] = true;
+		}
+	}
+	cells.clear();
+	return cells;
 }

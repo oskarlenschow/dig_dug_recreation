@@ -1,5 +1,8 @@
 #pragma once
 
+#include <iostream>
+
+using namespace std;
 
 class PumpBehaviourComponent : public Component
 {
@@ -7,9 +10,9 @@ public:
 
 	void Update(float dt)
 	{
-		go->position.y -= PUMP_SPEED * dt; // Pump_speed * time
-
-		if (go->position.y < 0) // When the Pump reaches the top of the screen, it disappears.
+		go->position.x -= PUMP_SPEED * dt; // Pump_speed * time
+		cout << go->position.x << " : " << go->position.y << endl;
+		if (go->position.x < 0) // When the Pump reaches the top of the screen, it disappears.
 			go->enabled = false;
 	}
 };
@@ -25,6 +28,7 @@ public:
 	{
 		SDL_Log("Pump::Init");
 		GameObject::Init(x, y);
+		mode = WALKING;
 	}
 
 	virtual void Receive(Message m)

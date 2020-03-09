@@ -52,9 +52,9 @@ public:
 		player_render->AddSprite("data/sprites/player_walk_1.png", IDLE);
 		player_render->AddSprite("data/sprites/player_pumping_0.png", ATTACKING);
 		player_render->AddSprite("data/sprites/player_pumping_1.png", ATTACKING);
-
+		
 		RenderComponent* pump_render = new RenderComponent();
-		pump_render->Create(engine, pump, &game_objects, "data/sprites/pump_0", 0.f);
+		pump_render->Create(engine, pump, &game_objects, "data/sprites/pump_0.png", 0.f);
 		PumpBehaviourComponent* pump_behaviour = new PumpBehaviourComponent();
 		pump_behaviour->Create(engine, pump, &game_objects);
 
@@ -291,9 +291,13 @@ public:
 
 		life_sprite->destroy();
 	
-		rockets_pool.Destroy();
-		//alien_pool.Destroy();
-		bomb_pool.Destroy();
+		rock_pool.Destroy();
+
+		fygar_pool.Destroy();
+		pookah_pool.Destroy();
+
 		delete player;
+		delete pump;
+		delete grid;
 	}
 };

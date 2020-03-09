@@ -24,7 +24,7 @@ public:
 	DIRECTION direction;
 	DIRECTION_AXIS axis;
 	bool enabled, moving;
-	int mode;
+	int mode = 0;
 
 	virtual ~GameObject();
 

@@ -5,6 +5,7 @@
 class PlayerBehaviourComponent : public Component
 {
 	GameObject* pump;
+	bool can_pump = true;
 public:
 	virtual ~PlayerBehaviourComponent() {}
 
@@ -27,13 +28,15 @@ public:
 
 		if (keys.space) {
 			go->mode = ATTACKING;
-			if (CanPump())
+			if (can_pump)
 			{
 				if (pump != NULL)	// rocket is NULL is the object pool can not provide an object
 				{
-					pump->Init(go->position.x, go->position.y + 32);
+					pump->Init(go->position.x, go->position.y);
+					pump->direction = go->direction;
 					game_objects->insert(pump);
 				}
+				can_pump = false;
 			}
 		}
 		else if (keys.right || keys.left) {

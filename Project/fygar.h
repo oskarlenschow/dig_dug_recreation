@@ -12,7 +12,7 @@ public:
 	virtual void Init(int x, int y)
 	{
 		SDL_Log("Fygar::Init");
-		GameObject::Init();
+		GameObject::Init(x, y);
 		direction = DIRECTION::RIGHT;
 		position.x = x;
 		position.y = y;
@@ -91,12 +91,12 @@ public:
 		if (CanFire())
 		{
 			// fetches a rocket from the pool and use it in game_objects
-			Bomb* bomb = bombs_pool->FirstAvailable();
+			/*Bomb* bomb = bombs_pool->FirstAvailable();
 			if (bomb != NULL)	// rocket is NULL is the object pool can not provide an object
 			{
 				bomb->Init(go->position.x, go->position.y + 32);
 				game_objects->insert(bomb);
-			}
+			}*/
 			//((Pookah*)go)->fire = false;
 		}
 
