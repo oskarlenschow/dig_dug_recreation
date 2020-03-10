@@ -67,12 +67,13 @@ public:
 class GridCollideComponent : public Component {
 	Grid* grid;
 	GameObject* player;
+	double timer;
 	vector< ObjectPool<GameObject> *> collision_pools;
 private:
 	inline int from2Dto1Dindex(int x, int y, int columns) { return x + y * columns; }
 public:
 	virtual void Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, vector<ObjectPool<GameObject> *> collision_pools, GameObject* player);
 	virtual void Update(float dt);
-	virtual vector<pair<int, int>> GetPath(GameObject* go0);
+	virtual Vector2D GetNextCell(Vector2D source_cell);
 };
 

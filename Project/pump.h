@@ -4,31 +4,21 @@
 
 using namespace std;
 
-class PumpBehaviourComponent : public Component
-{
-public:
-
-	void Update(float dt)
-	{
-		go->position.x -= PUMP_SPEED * dt; // Pump_speed * time
-		cout << go->position.x << " : " << go->position.y << endl;
-		if (go->position.x < 0) // When the Pump reaches the top of the screen, it disappears.
-			go->enabled = false;
-	}
-};
-
-
 // Pumps are shot by the player towards the aliens
 class Pump : public GameObject
 {
 
 public:
+	Vector2D start_position;
 
 	virtual void Init(int x, int y)
 	{
 		SDL_Log("Pump::Init");
 		GameObject::Init(x, y);
+		start_position.x = x;
+		start_position.y = y;
 		mode = WALKING;
+		moving = true;
 	}
 
 	virtual void Receive(Message m)
@@ -36,10 +26,77 @@ public:
 		if (!enabled)
 			return;
 
-		if (m == HIT)
+		if (m == PUMP)
 		{
+			moving = false;
+			//SDL_Log("Pump::Hit");
+		}
+		if (m == BURST) {
 			enabled = false;
-			SDL_Log("Pump::Hit");
 		}
 	}
 };
+
+class PumpBehaviourComponent : public Component
+{
+public:
+	virtual void Update(float dt)
+	{
+		
+		
+		if (abs(go->position.x - dynamic_cast<Pump*>(go)->start_position.x) < CELL_SIZE * 3 && abs(go->position.y - dynamic_cast<Pump*>(go)->start_position.y) < CELL_SIZE * 3 && go->moving) { //Ugly cast
+			switch (go->direction)
+			{
+			case DIRECTION::LEFT:
+				go->position.x -= PUMP_SPEED * dt;
+				break;
+			case DIRECTION::RIGHT:
+				go->position.x += PUMP_SPEED * dt;
+				break;
+			case DIRECTION::UP:
+				go->position.y -= PUMP_SPEED * dt;
+				break;
+			case DIRECTION::DOWN:
+				go->position.y += PUMP_SPEED * dt;
+				break;
+			default:
+				break;
+			}
+			
+		}
+		
+		
+	}
+};
+class PumpCollideComponent : public Component
+{
+	ObjectPool<GameObject>* coll_objects; // collision will be tested with these objects
+
+public:
+	virtual void Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, ObjectPool<GameObject>* coll_objects)
+	{
+		Component::Create(engine, go, game_objects);
+		this->coll_objects = coll_objects;
+	}
+	virtual void Update(float dt)
+	{
+		for (auto i = 0; i < coll_objects->pool.size(); i++)
+		{
+			GameObject* go0 = coll_objects->pool[i];
+			if (go0->enabled)
+			{
+				
+				if ((go0->position.x > go->position.x - 10) &&
+					(go0->position.x < go->position.x + 10) &&
+					(go0->position.y > go->position.y - 10) &&
+					(go0->position.y < go->position.y + 10))
+				{
+					//cout << "test" << endl;
+					go->Receive(PUMP);
+					go0->Receive(PUMP);
+				}
+			}
+		}
+	}
+};
+

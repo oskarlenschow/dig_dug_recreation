@@ -7,7 +7,7 @@
 #include <vector>
 
 
-enum Message { HIT, GAME_OVER, BOTH_DIRECTIONS, WALL, DIG, WALK, SCORE_UP};
+enum Message { HIT, GAME_OVER, BOTH_DIRECTIONS, WALL, DIG, WALK, SCORE_UP, BURST, PUMP, PUMP_RELEASE};
 
 class Component;
 

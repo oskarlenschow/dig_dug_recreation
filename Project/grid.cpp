@@ -272,8 +272,6 @@ void GridCollideComponent::Create(AvancezLib* engine, GameObject* go, std::set<G
 }
 void GridCollideComponent::Update(float dt) {
 
-	double clamp_length = dt * game_speed * FYGAR_SPEED;
-
 	//cout << clamp_length << endl;
 
 	for (int i = 0; i < collision_pools.size(); i++)
@@ -315,92 +313,67 @@ void GridCollideComponent::Update(float dt) {
 					go0->position.y = center_cell.y * grid->course_cell_size;
 				}
 					
+				
+				
 
-				//TODO : PATHFIND!!!! Only store turningpoints
-				vector<pair<int, int>> cells = GetPath(go0);
-				cout << cells.size() << endl;
-				if (cells.size() > 0) {
+				Vector2D next_cell = GetNextCell(go0->position);
+					
+				if (next_cell.x != -1)
+					path = true;
+				
+
+				//Hunt player
+				if (path && (int)go0->position.x == center_cell.x * grid->course_cell_size && (int)go0->position.y == center_cell.y * grid->course_cell_size) {
+
+					next_cell = GetNextCell(go0->position);
+					
+					if (next_cell.x != -1) {
+						int next_column = next_cell.x;
+						int next_row = next_cell.y;
+						int current_column = left_cell.x;
+						int current_row = left_cell.y;
+
+						if (next_column < current_column)
+							go0->direction = DIRECTION::LEFT;
+						else if (next_column > current_column)
+							go0->direction = DIRECTION::RIGHT;
+						else if (next_row < current_row)
+							go0->direction = DIRECTION::UP;
+						else if (next_row > current_row)
+							go0->direction = DIRECTION::DOWN;
+					}
 
 				}
-				else if (!path && go0->position.x == center_cell.x * grid->course_cell_size && go0->position.y == center_cell.y * grid->course_cell_size) {
+				//Mindless walking
+				else if (go0->position.x == center_cell.x * grid->course_cell_size && go0->position.y == center_cell.y * grid->course_cell_size) {
 					bool left = grid->course_grid[from2Dto1Dindex(center_cell.x - 1, center_cell.y, grid->course_columns)];
 					bool right = grid->course_grid[from2Dto1Dindex(center_cell.x + 1, center_cell.y, grid->course_columns)];
 					bool up = grid->course_grid[from2Dto1Dindex(center_cell.x, center_cell.y - 1, grid->course_columns)];
 					bool down = grid->course_grid[from2Dto1Dindex(center_cell.x, center_cell.y + 1, grid->course_columns)];
-					bool preferred = false;
-
-					DIRECTION preferred_direction = DIRECTION::NONE;
-
-					int distance_x = player->position.x - center_cell.x * grid->course_cell_size;
-					int distance_y = player->position.y - center_cell.y * grid->course_cell_size;
-
-					if (abs(distance_x) > abs(distance_y)) {
-						if (distance_x > 0) {
-							preferred_direction = DIRECTION::RIGHT;
-							preferred = right;
-						}
-						else if (distance_x < 0) {
-							preferred_direction = DIRECTION::LEFT;
-							preferred = left;
-						}
-					} else if (abs(distance_x) < abs(distance_y)) {
-						if (distance_y > 0) {
-							preferred_direction = DIRECTION::DOWN;
-							preferred = down;
-						}
-						else if (distance_y < 0) {
-							preferred_direction = DIRECTION::UP;
-							preferred = up;
-						}
-					}
-
+					
 					switch (go0->direction)
 					{
 					case DIRECTION::LEFT:
-						if (preferred)
-							go0->direction = preferred_direction;
-						else if (left)
+						if (left)
 							break;
-						else if (up)
-							go0->direction = DIRECTION::UP;
-						else if(down)
-							go0->direction = DIRECTION::DOWN;
 						else
 							go0->direction = DIRECTION::RIGHT;
 						break;
 					case DIRECTION::RIGHT:
-						if (preferred)
-							go0->direction = preferred_direction;
-						else if (right)
+						if (right)
 							break;
-						else if (down)
-							go0->direction = DIRECTION::DOWN;
-						else if (up)
-							go0->direction = DIRECTION::UP;
 						else
 							go0->direction = DIRECTION::LEFT;
 						break;
 					case DIRECTION::UP:
-						if (preferred)
-							go0->direction = preferred_direction;
-						else if (up)
+						if (up)
 							break;
-						else if (right)
-							go0->direction = DIRECTION::RIGHT;
-						else if (left)
-							go0->direction = DIRECTION::LEFT;
 						else
 							go0->direction = DIRECTION::DOWN;
 						break;
 					case DIRECTION::DOWN:
-						if (preferred)
-							go0->direction = preferred_direction;
-						else if (down)
+						if (down)
 							break;
-						else if (left)
-							go0->direction = DIRECTION::LEFT;
-						else if (right)
-							go0->direction = DIRECTION::RIGHT;
 						else
 							go0->direction = DIRECTION::UP;
 						break;
@@ -422,25 +395,31 @@ void GridCollideComponent::Update(float dt) {
 
 				//go0->Receive(HIT);
 				
+				
 			}
 		}
+		
+		if (timer < 0) {
+			timer = 1;
+		}
+		timer -= (dt * game_speed);
 }
 class QItem {
 public:
 	int row;
 	int col;
 	int dist;
-	vector<pair<int, int>> cells;
-	QItem(int x, int y, int w, vector<pair<int, int>> cells)
+	vector<Vector2D> cells;
+	QItem(int x, int y, int w, vector<Vector2D> cells)
 		: row(x), col(y), dist(w), cells(cells)
 	{
 	}
 };
-vector<pair<int, int>> GridCollideComponent::GetPath(GameObject* go0)
+Vector2D GridCollideComponent::GetNextCell(Vector2D source_cell)
 {
 
-	vector<pair<int, int>> cells;
-	cells.push_back(make_pair(go0->position.x / grid->course_cell_size, go0->position.y / grid->course_cell_size));
+	vector<Vector2D> cells;
+	cells.push_back(Vector2D(floor(source_cell.x / grid->course_cell_size), floor(source_cell.y / grid->course_cell_size)));
 
 	QItem source(0, 0, 0, cells);
 
@@ -457,8 +436,8 @@ vector<pair<int, int>> GridCollideComponent::GetPath(GameObject* go0)
 				visited[i][j] = false;
 		}
 	}
-	source.row = go0->position.x / grid->course_cell_size;
-	source.col = go0->position.y / grid->course_cell_size;
+	source.row = source_cell.x / grid->course_cell_size;
+	source.col = source_cell.y / grid->course_cell_size;
 
 	// applying BFS on matrix cells starting from source 
 	queue<QItem> q;
@@ -472,13 +451,15 @@ vector<pair<int, int>> GridCollideComponent::GetPath(GameObject* go0)
 		// Destination found, check uppermost and lowermost point of player, just to make it work if player has dug half a block and origin point is technically in a disabled block.
 		if ((p.row == floor(player->position.x / grid->course_cell_size) && p.col == floor(player->position.y / grid->course_cell_size))
 			|| (p.row == floor((player->position.x + player->dimensions.x - 1) / grid->course_cell_size) && p.col == floor((player->position.y + player->dimensions.y - 1) / grid->course_cell_size))) {
-			return p.cells;
+			if(p.cells.size() > 1)
+				return p.cells[1];
+			return Vector2D(-1, -1);
 		}
 		// moving up 
 		if (p.row - 1 >= 0 &&
 			visited[p.row - 1][p.col] == false) {
-			vector<pair<int, int>> cells = p.cells;
-			cells.push_back(make_pair(p.row - 1, p.col));
+			vector<Vector2D> cells = p.cells;
+			cells.push_back(Vector2D(p.row - 1, p.col));
 			q.push(QItem(p.row - 1, p.col, p.dist + 1, cells));
 			visited[p.row - 1][p.col] = true;
 		}
@@ -486,8 +467,8 @@ vector<pair<int, int>> GridCollideComponent::GetPath(GameObject* go0)
 		// moving down 
 		if (p.row + 1 < 14 &&
 			visited[p.row + 1][p.col] == false) {
-			vector<pair<int, int>> cells = p.cells;
-			cells.push_back(make_pair(p.row + 1, p.col));
+			vector<Vector2D> cells = p.cells;
+			cells.push_back(Vector2D(p.row + 1, p.col));
 			q.push(QItem(p.row + 1, p.col, p.dist + 1, cells));
 			visited[p.row + 1][p.col] = true;
 		}
@@ -495,8 +476,8 @@ vector<pair<int, int>> GridCollideComponent::GetPath(GameObject* go0)
 		// moving left 
 		if (p.col - 1 >= 0 &&
 			visited[p.row][p.col - 1] == false) {
-			vector<pair<int, int>> cells = p.cells;
-			cells.push_back(make_pair(p.row, p.col - 1));
+			vector<Vector2D> cells = p.cells;
+			cells.push_back(Vector2D(p.row, p.col - 1));
 			q.push(QItem(p.row, p.col - 1, p.dist + 1, cells));
 			visited[p.row][p.col - 1] = true;
 		}
@@ -504,12 +485,11 @@ vector<pair<int, int>> GridCollideComponent::GetPath(GameObject* go0)
 		// moving right 
 		if (p.col + 1 < 18 &&
 			visited[p.row][p.col + 1] == false) {
-			vector<pair<int, int>> cells = p.cells;
-			cells.push_back(make_pair(p.row, p.col + 1));
+			vector<Vector2D> cells = p.cells;
+			cells.push_back(Vector2D(p.row, p.col + 1));
 			q.push(QItem(p.row, p.col + 1, p.dist + 1, cells));
 			visited[p.row][p.col + 1] = true;
 		}
 	}
-	cells.clear();
-	return cells;
+	return Vector2D(-1, -1);
 }

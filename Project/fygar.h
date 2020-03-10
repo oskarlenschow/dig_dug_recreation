@@ -54,6 +54,19 @@ public:
 				break;
 			}
 		}
+		if (m == PUMP) {
+			if (mode != DYING) {
+				moving = false;
+				mode = DYING;
+				RenderComponent* renderComponent = GetComponent<RenderComponent*>();
+				renderComponent->SetImageIndex(0);
+				renderComponent->SetImageSpeed(2.f);
+			}
+		}
+		if (m == PUMP_RELEASE) {
+			moving = true;
+			mode = WALKING;
+		}
 	}
 
 	void RemoveLife()
@@ -65,7 +78,8 @@ public:
 
 class FygarBehaviourComponent : public Component
 {
-	float last_time_fire;	// time from the last time the fire button was pressed
+
+	float dying_timer;	// time from the last time the fire button was pressed
 	ObjectPool<Rock>* bombs_pool;
 public:
 	virtual ~FygarBehaviourComponent() {}
@@ -78,14 +92,21 @@ public:
 
 	virtual void Init()
 	{
-		last_time_fire = 0;
+		dying_timer = 4;
 	}
 
 	virtual void Update(float dt)
 	{
 
-
-		Move(dt * POOKAH_SPEED);
+		switch (go->mode)
+		{
+		case WALKING:
+			Move(dt * FYGAR_SPEED);
+			break;
+		default:
+			break;
+		}
+		
 
 
 		if (CanFire())

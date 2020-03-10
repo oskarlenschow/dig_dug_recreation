@@ -3,6 +3,7 @@
 #include "avancezlib.h"
 #include <iostream>
 
+
 void Component::Create(AvancezLib * engine, GameObject * go, std::set<GameObject*>* game_objects)
 {
 	this->go = go;
@@ -14,12 +15,11 @@ void RenderComponent::Create(AvancezLib* engine, GameObject* go, std::set<GameOb
 {
 	Component::Create(engine, go, game_objects);
 	
-	for (int i = 0; i < 4; i++) { //Create the 2D vector of sprites, depending on mode
+	for (int i = 0; i < 5; i++) { //Create the 2D vector of sprites, depending on mode
 		vector <Sprite*> temp;
 		sprites.insert(make_pair(i, temp));
 	}
 
-	
 	sprite = engine->createSprite(path);
 	sprites.at(0).push_back(sprite);
 
@@ -46,6 +46,8 @@ void RenderComponent::Update(float dt)
 	if (!go->enabled)
 		return;
 
+	double old_index = sprite_index;
+
 	sprite_index = fmod(sprite_index + (animation_speed * dt), sprites.at(go->mode).size());
 
 	if (sprite) {
@@ -67,13 +69,19 @@ void RenderComponent::Update(float dt)
 			break;
 		}
 
+		
 
 		if (sprites.at(go->mode).at(floor(sprite_index)))
 			sprites.at(go->mode).at(floor(sprite_index))->draw(int(go->position.x), int(go->position.y), angle, NULL, flip);
+		//cout << animation_speed << endl;
 		
-		//double old_index = sprite_index;
-		//if (sprite_index < old_index) go->Receive(ANIMATION_END);
-
+		
+		if (sprite_index < old_index && go->mode == 4) {
+			
+			go->Send(BURST);
+			go->enabled = false;
+		}
+		
 
 	}
 }

@@ -61,7 +61,8 @@ public:
 		pump->Create();
 		pump->AddComponent(pump_behaviour);
 		pump->AddComponent(pump_render);
-	
+
+		game_objects.insert(pump);
 
 		player->Create();
 		player->AddComponent(player_behaviour);
@@ -98,11 +99,17 @@ public:
 			pookah_render_component->AddSprite("data/sprites/pookah_walk_1.png", WALKING);
 			pookah_render_component->AddSprite("data/sprites/pookah_digging_0.png", DIGGING);
 			pookah_render_component->AddSprite("data/sprites/pookah_digging_1.png", DIGGING);
+			pookah_render_component->AddSprite("data/sprites/pookah_inflate_0.png", DYING);
+			pookah_render_component->AddSprite("data/sprites/pookah_inflate_1.png", DYING);
+			pookah_render_component->AddSprite("data/sprites/pookah_inflate_2.png", DYING);
+			pookah_render_component->AddSprite("data/sprites/pookah_inflate_3.png", DYING);
 
 			(*pookah)->Create();
 			(*pookah)->AddComponent(pookah_behaviour_component);
 			(*pookah)->AddComponent(pookah_render_component);
 			(*pookah)->AddReceiver(this);
+			(*pookah)->AddReceiver(pump);
+			player->AddReceiver(*pookah);
 			AddReceiver(*pookah);  //NOT NEEDED NOW?
 			game_objects.insert(*pookah);
 		}
@@ -120,23 +127,30 @@ public:
 			fygar_render_component->AddSprite("data/sprites/fygar_fire_0.png", ATTACKING);
 			fygar_render_component->AddSprite("data/sprites/fygar_digging_0.png", DIGGING);
 			fygar_render_component->AddSprite("data/sprites/fygar_digging_1.png", DIGGING);
+			fygar_render_component->AddSprite("data/sprites/fygar_inflate_0.png", DYING);
+			fygar_render_component->AddSprite("data/sprites/fygar_inflate_1.png", DYING);
+			fygar_render_component->AddSprite("data/sprites/fygar_inflate_2.png", DYING);
+			fygar_render_component->AddSprite("data/sprites/fygar_inflate_3.png", DYING);
 
 			(*fygar)->Create();
 			(*fygar)->AddComponent(fygar_behaviour_component);
 			(*fygar)->AddComponent(fygar_render_component);
 			(*fygar)->AddReceiver(this);
+			(*fygar)->AddReceiver(pump);
+			player->AddReceiver(*fygar);
 			AddReceiver(*fygar);  //NOT NEEDED NOW?
 			game_objects.insert(*fygar);
 		}
-		/*
-		CollideComponent* pookah_collide_component = new CollideComponent();
-		pookah_collide_component->Create(engine, player, &game_objects, (ObjectPool<GameObject>*) &pookah_pool);
-		player->AddComponent(pookah_collide_component);
+		
+		PumpCollideComponent* pookah_pump_collide = new PumpCollideComponent();
+		pookah_pump_collide->Create(engine, pump, &game_objects, (ObjectPool<GameObject>*) &pookah_pool);
+		pump->AddComponent(pookah_pump_collide);
 
-		CollideComponent* fygar_collide_component = new CollideComponent();
-		fygar_collide_component->Create(engine, player, &game_objects, (ObjectPool<GameObject>*) &fygar_pool);
-		player->AddComponent(fygar_collide_component);
-		*/
+		PumpCollideComponent* fygar_pump_collide = new PumpCollideComponent();
+		fygar_pump_collide->Create(engine, pump, &game_objects, (ObjectPool<GameObject>*) &fygar_pool);
+		pump->AddComponent(fygar_pump_collide);
+		
+
 		vector<ObjectPool<GameObject>*> collision_pools;
 		collision_pools.push_back((ObjectPool<GameObject>*) &pookah_pool);
 		collision_pools.push_back((ObjectPool<GameObject>*) &fygar_pool);
@@ -223,6 +237,8 @@ public:
 
 		for (auto go = pookah_pool.pool.begin(); go != pookah_pool.pool.end(); go++)
 			(*go)->Update(0);
+
+		pump->Update(0);
 
 		player->Update(0);
 		/*

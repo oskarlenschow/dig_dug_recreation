@@ -30,12 +30,8 @@ public:
 			go->mode = ATTACKING;
 			if (can_pump)
 			{
-				if (pump != NULL)	// rocket is NULL is the object pool can not provide an object
-				{
-					pump->Init(go->position.x, go->position.y);
-					pump->direction = go->direction;
-					game_objects->insert(pump);
-				}
+				pump->Init(go->position.x, go->position.y);
+				pump->direction = go->direction;
 				can_pump = false;
 			}
 		}
@@ -54,6 +50,12 @@ public:
 		else {
 			go->moving = false;
 			go->mode = IDLE;
+		}
+
+		if (!keys.space) {
+			can_pump = true;
+			pump->enabled = false;
+			go->Send(PUMP_RELEASE);
 		}
 	}
 	// move the player

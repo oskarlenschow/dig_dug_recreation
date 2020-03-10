@@ -25,11 +25,50 @@ public:
 			SDL_Log("Pookah::Hit!");
 			enabled = false;
 		}
+		if (m == WALL) {
+			switch (direction)
+			{
+			case DIRECTION::LEFT:
+				position.x += 1;
+				direction = DIRECTION::UP;
+				break;
+			case DIRECTION::RIGHT:
+				position.x -= 1;
+				direction = DIRECTION::DOWN;
+				break;
+			case DIRECTION::UP:
+				position.y += 1;
+				direction = DIRECTION::RIGHT;
+				break;
+			case DIRECTION::DOWN:
+				position.y -= 1;
+				direction = DIRECTION::LEFT;
+				break;
+			case DIRECTION::NONE:
+				break;
+			default:
+				break;
+			}
+		}
+		if (m == PUMP) {
+			if (mode != DYING){
+				moving = false;
+				mode = DYING;
+				RenderComponent* renderComponent = GetComponent<RenderComponent*>();
+				renderComponent->SetImageIndex(0);
+				renderComponent->SetImageSpeed(2.f);
+			}
+		}
+		if (m == PUMP_RELEASE) {
+			moving = true;
+			mode = WALKING;
+		}
 	}
 };
 
 class PookahBehaviourComponent : public Component
 {
+	float dying_timer;	// time from the last time the fire button was pressed
 public:
 	virtual ~PookahBehaviourComponent() {}
 
@@ -40,11 +79,19 @@ public:
 
 	virtual void Init()
 	{
+		dying_timer = 4;
 	}
 
 	virtual void Update(float dt)
 	{
-		Move(dt * POOKAH_SPEED);	
+		switch (go->mode)
+		{
+		case WALKING:
+			Move(dt * POOKAH_SPEED);
+			break;
+		default:
+			break;
+		}
 	}
 
 

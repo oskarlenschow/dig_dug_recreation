@@ -18,6 +18,9 @@ const unsigned int WALKING = 0;
 const unsigned int ATTACKING = 1;
 const unsigned int DIGGING = 2;
 const unsigned int IDLE = 3;
+const unsigned int DYING = 4;
+
+const unsigned int MODES = 5;
 
 
 const unsigned int	CELL_SIZE = 32;
