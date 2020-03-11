@@ -177,7 +177,7 @@ public:
 		{
 		case HIT:
 			SDL_Log("Player::Hit!");
-			RemoveLife();
+			//RemoveLife();
 			if (lives < 0)
 				Send(GAME_OVER);
 			else

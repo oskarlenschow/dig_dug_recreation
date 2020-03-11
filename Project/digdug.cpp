@@ -8,8 +8,6 @@
 
 const unsigned int	NUM_LIVES = 2;
 
-const unsigned int	MAX_NUM_ROCKETS = 32;
-const unsigned int	MAX_NUM_BOMBS = 32;
 const unsigned int	POINTS_PER_ALIEN = 100;
 
 

@@ -13,7 +13,7 @@ public:
 	{
 		SDL_Log("Fygar::Init");
 		GameObject::Init(x, y);
-		direction = DIRECTION::RIGHT;
+		direction = DIRECTION::NONE;
 		position.x = x;
 		position.y = y;
 	}
@@ -32,20 +32,16 @@ public:
 			switch (direction)
 			{
 			case DIRECTION::LEFT:
-				position.x += 1;
-				direction = DIRECTION::UP;
-				break;
-			case DIRECTION::RIGHT:
-				position.x -= 1;
-				direction = DIRECTION::DOWN;
-				break;
-			case DIRECTION::UP:
-				position.y += 1;
 				direction = DIRECTION::RIGHT;
 				break;
-			case DIRECTION::DOWN:
-				position.y -= 1;
+			case DIRECTION::RIGHT:
 				direction = DIRECTION::LEFT;
+				break;
+			case DIRECTION::UP:
+				direction = DIRECTION::DOWN;
+				break;
+			case DIRECTION::DOWN:
+				direction = DIRECTION::UP;
 				break;
 			case DIRECTION::NONE:
 				break;

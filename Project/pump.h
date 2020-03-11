@@ -31,6 +31,9 @@ public:
 		if (m == FYGAR_BURST || m == POOKAH_BURST) {
 			enabled = false;
 		}
+		if (m == WALL) {
+			enabled = false;
+		}
 	}
 };
 
@@ -39,8 +42,6 @@ class PumpBehaviourComponent : public Component
 public:
 	virtual void Update(float dt)
 	{
-		
-		cout << "wot" << endl;
 		if (abs(go->position.x - go->start_position.x) > CELL_SIZE * 3 || abs(go->position.y - go->start_position.y) > CELL_SIZE * 3) {
 			go->enabled = false;
 		}

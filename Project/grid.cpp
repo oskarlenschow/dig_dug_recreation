@@ -70,7 +70,7 @@ void Grid::Reset() {
 void GridPlayerComponent::Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, GameObject* player){
 	Component::Create(engine, go, game_objects);
 	this->player = player;
-	grid = dynamic_cast<Grid*>(go);
+	this->grid = dynamic_cast<Grid*>(go);
 }
 
 void GridPlayerComponent::Update(float dt){
@@ -80,20 +80,24 @@ void GridPlayerComponent::Update(float dt){
 		int object_start_x = player->position.x;
 		int object_start_y = player->position.y;
 
-		int object_end_x = player->position.x + player->dimensions.x;
-		int object_end_y = player->position.y + player->dimensions.y;
+		int object_end_x = player->position.x + player->dimensions.x -1;
+		int object_end_y = player->position.y + player->dimensions.y -1;
 
-		int fine_start_column = round(object_start_x /	grid->fine_cell_size);
-		int fine_start_row = round(object_start_y / grid->fine_cell_size);
+		int fine_start_column = object_start_x / grid->fine_cell_size;
+		int fine_start_row = object_start_y / grid->fine_cell_size;
 
 		int fine_end_column = object_end_x / grid->fine_cell_size;
 		int fine_end_row = object_end_y / grid->fine_cell_size;
 
-		int course_collision_column = (int)(object_start_x / grid->course_cell_size);
-		int course_collision_row = (int)(object_start_y / grid->course_cell_size);
+		int course_start_column = object_start_x / grid->course_cell_size;
+		int course_start_row = object_start_y / grid->course_cell_size;
 
-		double course_collision_x = (grid->course_cell_size)*course_collision_column; //Not the same as object_x, as this uses the truncated result (example: object_x = 67, course_collision_x = floor(67 / 32) * 32 = 64
-		double course_collision_y = (grid->course_cell_size)*course_collision_row;    //These two values are used to know if player is exactly inside a cell, without margin.
+		int course_end_column = object_end_x / grid->course_cell_size;
+		int course_end_row = object_end_y / grid->course_cell_size;
+
+		double course_collision_x = (grid->course_cell_size)* course_start_column; //Not the same as object_x, as this uses the truncated result (example: object_x = 67, course_collision_x = floor(67 / 32) * 32 = 64
+		double course_collision_y = (grid->course_cell_size)* course_start_row;    //These two values are used to know if player is exactly inside a cell, without margin.
+
 
 		//Tell player it can move in both directions
 		if (object_start_x == course_collision_x && object_start_y == course_collision_y) {
@@ -101,19 +105,19 @@ void GridPlayerComponent::Update(float dt){
 			switch (player->direction)
 			{
 			case DIRECTION::LEFT:
-				if(grid->course_grid[from2Dto1Dindex(course_collision_column - 1, course_collision_row, grid->course_columns)])
+				if(grid->course_grid[from2Dto1Dindex(course_start_column - 1, course_start_row, grid->course_columns)])
 					player->Receive(WALK);
 				break;
 			case DIRECTION::RIGHT:
-				if (grid->course_grid[from2Dto1Dindex(course_collision_column + 1, course_collision_row, grid->course_columns)])
+				if (grid->course_grid[from2Dto1Dindex(course_start_column + 1, course_start_row, grid->course_columns)])
 					player->Receive(WALK);
 				break;
 			case DIRECTION::UP:
-				if (grid->course_grid[from2Dto1Dindex(course_collision_column, course_collision_row - 1, grid->course_columns)])
+				if (grid->course_grid[from2Dto1Dindex(course_start_column, course_start_row - 1, grid->course_columns)])
 					player->Receive(WALK);
 				break;
 			case DIRECTION::DOWN:
-				if (grid->course_grid[from2Dto1Dindex(course_collision_column, course_collision_row + 1, grid->course_columns)])
+				if (grid->course_grid[from2Dto1Dindex(course_start_column, course_start_row + 1, grid->course_columns)])
 					player->Receive(WALK);
 				break;
 			default:
@@ -122,26 +126,51 @@ void GridPlayerComponent::Update(float dt){
 			
 		}
 		//Fill all small cells that are crossed
-		for (int x = fine_start_column; x < fine_end_column; x++) {
-			for (int y = fine_start_row; y < fine_end_row; y++)
+		for (int x = fine_start_column; x <= fine_end_column; x++) {
+			for (int y = fine_start_row; y <= fine_end_row; y++) {
 				if (!grid->fine_grid[from2Dto1Dindex(x, y, grid->fine_columns)]) {
 					grid->fine_grid[from2Dto1Dindex(x, y, grid->fine_columns)] = true;
 					player->Receive(DIG);
 				}
+			}
 		}
-		//Ensure course grid cells are set to true when all small cells in it have been crossed
-		if (fine_start_column == course_collision_column * grid->fine_per_course && fine_start_row == course_collision_row * grid->fine_per_course
-			&& !grid->course_grid[from2Dto1Dindex(course_collision_column, course_collision_row, grid->course_columns)]) {
-			go->Send(SCORE_UP);
-			grid->course_grid[from2Dto1Dindex(course_collision_column, course_collision_row, grid->course_columns)] = true;
+
+		//Ensure that larger cells are set true if all small cells inside are filled (By using the start and end positions)
+		if (!grid->course_grid[from2Dto1Dindex(course_start_column, course_start_row, grid->course_columns)]) {
+			bool complete_dig = true;
+			for (int x = course_start_column * grid->fine_per_course; x < (course_start_column + 1) * grid->fine_per_course; x++) {
+				for (int y = course_start_row * grid->fine_per_course; y < (course_start_row + 1) * grid->fine_per_course; y++)
+					if (!grid->fine_grid[from2Dto1Dindex(x, y, grid->fine_columns)]) {
+						complete_dig = false;
+					}
+			}
+			if (complete_dig) {
+				go->Send(SCORE_UP);
+				grid->course_grid[from2Dto1Dindex(course_start_column, course_start_row, grid->course_columns)] = true;
+			}
 		}
+		if (!grid->course_grid[from2Dto1Dindex(course_end_column, course_end_row, grid->course_columns)]) {
+			bool complete_dig = true;
+			for (int x = course_end_column * grid->fine_per_course; x < (course_end_column + 1) * grid->fine_per_course; x++) {
+				for (int y = course_end_row * grid->fine_per_course; y < (course_end_row + 1) * grid->fine_per_course; y++)
+					if (!grid->fine_grid[from2Dto1Dindex(x, y, grid->fine_columns)]) {
+						complete_dig = false;
+					}
+			}
+			if (complete_dig) {
+				go->Send(SCORE_UP);
+				grid->course_grid[from2Dto1Dindex(course_end_column, course_end_row, grid->course_columns)] = true;
+			}
+		}
+		
+		
 				
 	}
 }
 void GridRenderComponent::Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects) {
 
 	Component::Create(engine, go, game_objects);
-	grid = dynamic_cast<Grid*>(go);
+	this->grid = dynamic_cast<Grid*>(go);
 
 	digout_small = engine->createSprite("data/digout_small.bmp");  //TODO: These should be arguments sent in?
 	digout_full = engine->createSprite("data/digout_full.bmp");
@@ -265,144 +294,116 @@ void GridRenderComponent::Update(float dt) {
 	}
 }
 
-void GridCollideComponent::Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, vector<ObjectPool<GameObject> *> collision_pools, GameObject* player) {
+void GridCollideComponent::Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, GameObject* go0, GameObject* player) {
+	Component::Create(engine, go, game_objects);
+	this->go0 = go0;
 	this->player = player;
-	grid = dynamic_cast<Grid*>(go);
-	this->collision_pools = collision_pools;
+	this->grid = dynamic_cast<Grid*>(go);
 }
 void GridCollideComponent::Update(float dt) {
+	Vector2D center_cell = Vector2D(floor((go0->position.x + (go0->dimensions.x / 2)) / grid->course_cell_size),
+		floor((go0->position.y + (go0->dimensions.y / 2)) / grid->course_cell_size));
 
-	//cout << clamp_length << endl;
+	Vector2D left_cell = Vector2D(floor((go0->position.x) / grid->course_cell_size),
+		floor((go0->position.y + (go0->dimensions.y / 2)) / grid->course_cell_size));
 
-	for (int i = 0; i < collision_pools.size(); i++)
+	Vector2D right_cell = Vector2D(floor((go0->position.x + (go0->dimensions.x - 1)) / grid->course_cell_size),
+		floor((go0->position.y + (go0->dimensions.y / 2)) / grid->course_cell_size));
 
-		for (int j = 0; j < collision_pools[i]->pool.size(); j++)
-		{
-			GameObject* go0 = collision_pools[i]->pool[j];
-			
-			if (go0->enabled)
-			{
-				bool path = false;
-				//Check if enemy is outside of bounds
-				Vector2D center_cell = Vector2D(floor((go0->position.x + (go0->dimensions.x / 2)) / grid->course_cell_size), 
-					floor((go0->position.y + (go0->dimensions.y / 2)) / grid->course_cell_size));
-				
-				Vector2D left_cell = Vector2D(floor((go0->position.x) / grid->course_cell_size),
-					floor((go0->position.y + (go0->dimensions.y / 2)) / grid->course_cell_size));
+	Vector2D top_cell = Vector2D(floor((go0->position.x + (go0->dimensions.x / 2)) / grid->course_cell_size),
+		floor((go0->position.y) / grid->course_cell_size));
 
-				Vector2D right_cell = Vector2D(floor((go0->position.x + (go0->dimensions.x - 1)) / grid->course_cell_size),
-					floor((go0->position.y + (go0->dimensions.y / 2)) / grid->course_cell_size));
+	Vector2D bottom_cell = Vector2D(floor((go0->position.x + (go0->dimensions.x / 2)) / grid->course_cell_size),
+		floor((go0->position.y + (go0->dimensions.y - 1)) / grid->course_cell_size));
 
-				Vector2D top_cell = Vector2D(floor((go0->position.x + (go0->dimensions.x / 2)) / grid->course_cell_size),
-					floor((go0->position.y) / grid->course_cell_size));
+	Vector2D player_center_cell = Vector2D(floor((player->position.x + (player->dimensions.x / 2)) / grid->course_cell_size),
+		floor((player->position.y + (player->dimensions.y / 2)) / grid->course_cell_size));
 
-				Vector2D bottom_cell = Vector2D(floor((go0->position.x + (go0->dimensions.x / 2)) / grid->course_cell_size),
-					floor((go0->position.y + (go0->dimensions.y - 1)) / grid->course_cell_size));
-				
-				//Move enemy back in
-				if (!grid->course_grid[from2Dto1Dindex(left_cell.x, left_cell.y, grid->course_columns)]) {
-					go0->position.x = center_cell.x * grid->course_cell_size;
-				}
-				if (!grid->course_grid[from2Dto1Dindex(right_cell.x, right_cell.y, grid->course_columns)]) {
-					go0->position.x = center_cell.x * grid->course_cell_size;
-				}
-				if (!grid->course_grid[from2Dto1Dindex(top_cell.x, top_cell.y, grid->course_columns)]) {
-					go0->position.y = center_cell.y * grid->course_cell_size;
-				}
-				if (!grid->course_grid[from2Dto1Dindex(bottom_cell.x, bottom_cell.y, grid->course_columns)]) {
-					go0->position.y = center_cell.y * grid->course_cell_size;
-				}
-					
-				
-				
+	Vector2D player_left_cell = Vector2D(floor((player->position.x) / grid->course_cell_size),
+		floor((player->position.y + (player->dimensions.y / 2)) / grid->course_cell_size));
 
-				Vector2D next_cell = GetNextCell(go0->position);
-					
-				if (next_cell.x != -1)
-					path = true;
-				
+	Vector2D player_right_cell = Vector2D(floor((player->position.x + (player->dimensions.x - 1)) / grid->course_cell_size),
+		floor((player->position.y + (player->dimensions.y / 2)) / grid->course_cell_size));
 
-				//Hunt player
-				if (path && (int)go0->position.x == center_cell.x * grid->course_cell_size && (int)go0->position.y == center_cell.y * grid->course_cell_size) {
+	Vector2D player_top_cell = Vector2D(floor((player->position.x + (player->dimensions.x / 2)) / grid->course_cell_size),
+		floor((player->position.y) / grid->course_cell_size));
 
-					next_cell = GetNextCell(go0->position);
-					
-					if (next_cell.x != -1) {
-						int next_column = next_cell.x;
-						int next_row = next_cell.y;
-						int current_column = left_cell.x;
-						int current_row = left_cell.y;
+	Vector2D player_bottom_cell = Vector2D(floor((player->position.x + (player->dimensions.x / 2)) / grid->course_cell_size),
+		floor((player->position.y + (player->dimensions.y - 1)) / grid->course_cell_size));
 
-						if (next_column < current_column)
-							go0->direction = DIRECTION::LEFT;
-						else if (next_column > current_column)
-							go0->direction = DIRECTION::RIGHT;
-						else if (next_row < current_row)
-							go0->direction = DIRECTION::UP;
-						else if (next_row > current_row)
-							go0->direction = DIRECTION::DOWN;
-					}
+	//Move enemy back in
+	if (!grid->course_grid[from2Dto1Dindex(left_cell.x, left_cell.y, grid->course_columns)]) {
+		if (!player_center_cell.equals(center_cell) && !(player_center_cell.equals(left_cell)) || go0->direction == DIRECTION::LEFT) { // Even if there was a wall here, if player is halfway digging that wall, ignore collision for that tile.
+			go0->position.x = center_cell.x * grid->course_cell_size;
+			go0->Receive(WALL);
+		}
+	}
+	if (!grid->course_grid[from2Dto1Dindex(right_cell.x, right_cell.y, grid->course_columns)]) {
+		if (!player_center_cell.equals(center_cell) && !(player_center_cell.equals(right_cell)) || go0->direction == DIRECTION::RIGHT) {
+			go0->position.x = center_cell.x * grid->course_cell_size;
+			go0->Receive(WALL);
+		}
+	}
+	if (!grid->course_grid[from2Dto1Dindex(top_cell.x, top_cell.y, grid->course_columns)]) {
+		if (!player_center_cell.equals(center_cell) && !(player_center_cell.equals(top_cell)) || go0->direction == DIRECTION::UP) {
+			go0->position.y = center_cell.y * grid->course_cell_size;
+			go0->Receive(WALL);
+		}
+	}
+	if (!grid->course_grid[from2Dto1Dindex(bottom_cell.x, bottom_cell.y, grid->course_columns)]) {
+		if (!player_center_cell.equals(center_cell) && !(player_center_cell.equals(bottom_cell)) || go0->direction == DIRECTION::DOWN) {
+			go0->position.y = center_cell.y * grid->course_cell_size;
+			go0->Receive(WALL);
+		}
+	}
+}
 
-				}
-				//Mindless walking
-				else if (go0->position.x == center_cell.x * grid->course_cell_size && go0->position.y == center_cell.y * grid->course_cell_size) {
-					bool left = grid->course_grid[from2Dto1Dindex(center_cell.x - 1, center_cell.y, grid->course_columns)];
-					bool right = grid->course_grid[from2Dto1Dindex(center_cell.x + 1, center_cell.y, grid->course_columns)];
-					bool up = grid->course_grid[from2Dto1Dindex(center_cell.x, center_cell.y - 1, grid->course_columns)];
-					bool down = grid->course_grid[from2Dto1Dindex(center_cell.x, center_cell.y + 1, grid->course_columns)];
-					
-					switch (go0->direction)
-					{
-					case DIRECTION::LEFT:
-						if (left)
-							break;
-						else
-							go0->direction = DIRECTION::RIGHT;
-						break;
-					case DIRECTION::RIGHT:
-						if (right)
-							break;
-						else
-							go0->direction = DIRECTION::LEFT;
-						break;
-					case DIRECTION::UP:
-						if (up)
-							break;
-						else
-							go0->direction = DIRECTION::DOWN;
-						break;
-					case DIRECTION::DOWN:
-						if (down)
-							break;
-						else
-							go0->direction = DIRECTION::UP;
-						break;
-					case DIRECTION::NONE:
-						break;
-					default:
-						break;
-					}
-				}
-				//Check collision with player
-				if ((go0->position.x < player->position.x + (player->dimensions.x - 10)) &&
-					(go0->position.x + go0->dimensions.x > (player->position.x + 10)) &&
-					(go0->position.y + go0->dimensions.y > (player->position.y + 10)) &&
-					(go0->position.y < player->position.y + (player->dimensions.y - 10)))
-				{
-					go0->Receive(HIT);
-					player->Receive(HIT);
-				}
+void GridPathComponent::Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, GameObject* go0, GameObject* player) {
+	Component::Create(engine, go, game_objects);
+	this->player = player;
+	this->grid = dynamic_cast<Grid*>(go);
+	this->go0 = go0;
+	next_cell = Vector2D(-1, -1);
+	path = false;
+}
+void GridPathComponent::Update(float dt) {
 
-				//go0->Receive(HIT);
-				
-				
-			}
+		current_cell = Vector2D(floor((go0->position.x) / grid->course_cell_size), 
+			floor(go0->position.y / grid->course_cell_size));
+
+		if (next_cell.x != -1)
+			path = true;
+		else if (timer < 0) { // Do this every second until path is found
+			next_cell = GetNextCell(current_cell);
 		}
 		
+		//Hunt player
+		if (path && floor(go0->position.x) == current_cell.x * grid->course_cell_size && floor(go0->position.y) == current_cell.y * grid->course_cell_size) {
+			
+			next_cell = GetNextCell(current_cell);
+
+			int next_column = next_cell.x;
+			int next_row = next_cell.y;
+			int current_column = current_cell.x;
+			int current_row = current_cell.y;
+
+			if (next_column < current_column)
+				go0->direction = DIRECTION::LEFT;
+			else if (next_column > current_column) {
+				go0->direction = DIRECTION::RIGHT;
+			}
+			else if (next_row < current_row)
+				go0->direction = DIRECTION::UP;
+			else if (next_row > current_row)
+				go0->direction = DIRECTION::DOWN;
+			
+		}
+				
 		if (timer < 0) {
 			timer = 1;
 		}
 		timer -= (dt * game_speed);
+		
 }
 class QItem {
 public:
@@ -415,11 +416,11 @@ public:
 	{
 	}
 };
-Vector2D GridCollideComponent::GetNextCell(Vector2D source_cell)
+Vector2D GridPathComponent::GetNextCell(Vector2D source_cell)
 {
 
 	vector<Vector2D> cells;
-	cells.push_back(Vector2D(floor(source_cell.x / grid->course_cell_size), floor(source_cell.y / grid->course_cell_size)));
+	cells.push_back(Vector2D(source_cell.x, source_cell.y));
 
 	QItem source(0, 0, 0, cells);
 
@@ -434,10 +435,14 @@ Vector2D GridCollideComponent::GetNextCell(Vector2D source_cell)
 				visited[i][j] = true;
 			else
 				visited[i][j] = false;
+			/*
+			if (i == floor((player->position.x + player->dimensions.x / 2) / grid->course_cell_size) && j == floor((player->position.y + player->dimensions.y / 2) / grid->course_cell_size)) {
+				visited[i][j] = false;
+			}*/
 		}
 	}
-	source.row = source_cell.x / grid->course_cell_size;
-	source.col = source_cell.y / grid->course_cell_size;
+	source.row = source_cell.x;
+	source.col = source_cell.y;
 
 	// applying BFS on matrix cells starting from source 
 	queue<QItem> q;
@@ -448,8 +453,8 @@ Vector2D GridCollideComponent::GetNextCell(Vector2D source_cell)
 		QItem p = q.front();
 		q.pop();
 
-		// Destination found, check uppermost and lowermost point of player, just to make it work if player has dug half a block and origin point is technically in a disabled block.
-		if ((p.row == floor(player->position.x / grid->course_cell_size) && p.col == floor(player->position.y / grid->course_cell_size))
+		// Destination found
+		if ((p.row == floor((player->position.x) / grid->course_cell_size) && p.col == floor((player->position.y) / grid->course_cell_size))
 			|| (p.row == floor((player->position.x + player->dimensions.x - 1) / grid->course_cell_size) && p.col == floor((player->position.y + player->dimensions.y - 1) / grid->course_cell_size))) {
 			if(p.cells.size() > 1)
 				return p.cells[1];

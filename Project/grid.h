@@ -13,7 +13,7 @@ class Grid : public GameObject {
 private:
 	inline int from2Dto1Dindex(int x, int y, int columns) { return x + y * columns; }
 public:
-	std::unordered_map<int, bool> course_grid; //Used for collision
+	std::unordered_map<int, bool> course_grid; //Used for larger sections
 	std::unordered_map<int, bool> fine_grid; //Used for smaller sections
 	double course_cell_size;
 	double fine_cell_size;
@@ -64,16 +64,29 @@ public:
 
 };
 
-class GridCollideComponent : public Component {
+class GridPathComponent : public Component {
 	Grid* grid;
 	GameObject* player;
+	GameObject* go0;
+	Vector2D current_cell;
+	Vector2D next_cell;
+	bool path;
 	double timer;
-	vector< ObjectPool<GameObject> *> collision_pools;
 private:
 	inline int from2Dto1Dindex(int x, int y, int columns) { return x + y * columns; }
 public:
-	virtual void Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, vector<ObjectPool<GameObject> *> collision_pools, GameObject* player);
+	virtual void Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, GameObject* go0, GameObject* player);
 	virtual void Update(float dt);
 	virtual Vector2D GetNextCell(Vector2D source_cell);
 };
 
+class GridCollideComponent : public Component {
+	Grid* grid;
+	GameObject* player;
+	GameObject* go0;
+private:
+	inline int from2Dto1Dindex(int x, int y, int columns) { return x + y * columns; }
+public:
+	virtual void Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, GameObject* go0, GameObject* player);
+	virtual void Update(float dt);
+};

@@ -11,7 +11,7 @@ public:
 	{
 		SDL_Log("Pookah::Init");
 		GameObject::Init(x, y);
-		direction = DIRECTION::RIGHT;
+		direction = DIRECTION::NONE;
 	}
 	virtual void InitPos(int x, int y) {
 		SDL_Log("Pookah::InitPos");
@@ -28,20 +28,16 @@ public:
 			switch (direction)
 			{
 			case DIRECTION::LEFT:
-				position.x += 1;
-				direction = DIRECTION::UP;
-				break;
-			case DIRECTION::RIGHT:
-				position.x -= 1;
-				direction = DIRECTION::DOWN;
-				break;
-			case DIRECTION::UP:
-				position.y += 1;
 				direction = DIRECTION::RIGHT;
 				break;
-			case DIRECTION::DOWN:
-				position.y -= 1;
+			case DIRECTION::RIGHT:
 				direction = DIRECTION::LEFT;
+				break;
+			case DIRECTION::UP:
+				direction = DIRECTION::DOWN;
+				break;
+			case DIRECTION::DOWN:
+				direction = DIRECTION::UP;
 				break;
 			case DIRECTION::NONE:
 				break;

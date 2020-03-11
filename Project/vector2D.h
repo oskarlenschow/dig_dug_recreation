@@ -34,6 +34,11 @@ public:
 	{
 		return x * rhs.x + y * rhs.y;
 	}
+	bool equals(const Vector2D& rhs) {
+		if (x == rhs.x && y == rhs.y)
+			return true;
+		return false;
+	}
 
 	Vector2D(double x, double y) {
 		this->x = x;

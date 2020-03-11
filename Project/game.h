@@ -30,6 +30,7 @@ class Game : public GameObject
 	unsigned int highscore = 0;
 	unsigned int enemies = 0;
 	unsigned int level = 1;
+	unsigned int health_up = 0;
 	float timer = 0;	//Timer for flashing text
 	bool flashing_text;
 
@@ -88,7 +89,6 @@ public:
 		player->AddReceiver(this);
 		game_objects.insert(grid);
 		game_objects.insert(player);
-
 		// Create all pookahs and their behaviours + rendering components
 		
 		pookah_pool.Create(3);
@@ -105,10 +105,18 @@ public:
 			pookah_render_component->AddSprite("data/sprites/pookah_inflate_1.png", DYING);
 			pookah_render_component->AddSprite("data/sprites/pookah_inflate_2.png", DYING);
 			pookah_render_component->AddSprite("data/sprites/pookah_inflate_3.png", DYING);
+			GridPathComponent* grid_path_component = new GridPathComponent();
+			grid_path_component->Create(engine, grid, &game_objects, *pookah, player);
+
+			GridCollideComponent* grid_collide_component = new GridCollideComponent();
+			grid_collide_component->Create(engine, grid, &game_objects, *pookah, player);
+
 
 			(*pookah)->Create();
 			(*pookah)->AddComponent(pookah_behaviour_component);
 			(*pookah)->AddComponent(pookah_render_component);
+			(*pookah)->AddComponent(grid_collide_component);
+			(*pookah)->AddComponent(grid_path_component);
 			(*pookah)->AddReceiver(this);
 			(*pookah)->AddReceiver(pump);
 			player->AddReceiver(*pookah);
@@ -118,7 +126,7 @@ public:
 		}
 		
 		// Create all fygars and their behaviours + rendering components
-
+		
 		fygar_pool.Create(1);
 		for (auto fygar = fygar_pool.pool.begin(); fygar != fygar_pool.pool.end(); fygar++)
 		{
@@ -134,10 +142,17 @@ public:
 			fygar_render_component->AddSprite("data/sprites/fygar_inflate_1.png", DYING);
 			fygar_render_component->AddSprite("data/sprites/fygar_inflate_2.png", DYING);
 			fygar_render_component->AddSprite("data/sprites/fygar_inflate_3.png", DYING);
+			GridPathComponent* grid_path_component = new GridPathComponent();
+			grid_path_component->Create(engine, grid, &game_objects, *fygar, player);
+
+			GridCollideComponent* grid_collide_component = new GridCollideComponent();
+			grid_collide_component->Create(engine, grid, &game_objects, *fygar, player);
 
 			(*fygar)->Create();
 			(*fygar)->AddComponent(fygar_behaviour_component);
 			(*fygar)->AddComponent(fygar_render_component);
+			(*fygar)->AddComponent(grid_collide_component);
+			(*fygar)->AddComponent(grid_path_component);
 			(*fygar)->AddReceiver(this);
 			(*fygar)->AddReceiver(pump);
 			player->AddReceiver(*fygar);
@@ -154,15 +169,10 @@ public:
 		fygar_pump_collide->Create(engine, pump, &game_objects, (ObjectPool<GameObject>*) &fygar_pool);
 		pump->AddComponent(fygar_pump_collide);
 		
+		GridCollideComponent* pump_grid_collide = new GridCollideComponent();
+		pump_grid_collide->Create(engine, grid, &game_objects, pump, player);
+		pump->AddComponent(pump_grid_collide);
 
-		vector<ObjectPool<GameObject>*> collision_pools;
-		collision_pools.push_back((ObjectPool<GameObject>*) &pookah_pool);
-		collision_pools.push_back((ObjectPool<GameObject>*) &fygar_pool);
-
-		GridCollideComponent* grid_collide_component = new GridCollideComponent();
-		grid_collide_component->Create(engine, grid, &game_objects, collision_pools, player);
-
-		grid->AddComponent(grid_collide_component);
 
 		life_sprite = engine->createSprite("data/sprites/player_digging_0.png");
 		level_sprite = engine->createSprite("data/sprites/flower.png");
@@ -177,11 +187,13 @@ public:
 		pookah_pool.pool.at(0)->Init(2 * CELL_SIZE, 5 * CELL_SIZE);
 		pookah_pool.pool.at(0)->direction = DIRECTION::DOWN;
 		pookah_pool.pool.at(1)->Init(10 * CELL_SIZE, 4 * CELL_SIZE);
+		pookah_pool.pool.at(1)->direction = DIRECTION::RIGHT;
 		pookah_pool.pool.at(2)->Init(9 * CELL_SIZE, 12 * CELL_SIZE);
 		pookah_pool.pool.at(2)->direction = DIRECTION::DOWN;
 		
 		fygar_pool.pool.at(0)->Init(2 * CELL_SIZE, 12 * CELL_SIZE);
-
+		fygar_pool.pool.at(0)->direction = DIRECTION::RIGHT;
+		
 		enabled = true;
 	}
 	//Generate the next level
@@ -196,10 +208,12 @@ public:
 		pookah_pool.pool.at(0)->Init(2 * CELL_SIZE, 5 * CELL_SIZE);
 		pookah_pool.pool.at(0)->direction = DIRECTION::DOWN;
 		pookah_pool.pool.at(1)->Init(10 * CELL_SIZE, 4 * CELL_SIZE);
+		pookah_pool.pool.at(1)->direction = DIRECTION::RIGHT;
 		pookah_pool.pool.at(2)->Init(9 * CELL_SIZE, 12 * CELL_SIZE);
 		pookah_pool.pool.at(2)->direction = DIRECTION::DOWN;
 
 		fygar_pool.pool.at(0)->Init(2 * CELL_SIZE, 12 * CELL_SIZE);
+		fygar_pool.pool.at(0)->direction = DIRECTION::RIGHT;
 		
 		POOKAH_SPEED *= 1.2f;
 		FYGAR_SPEED *= 1.2f;
@@ -330,19 +344,25 @@ public:
 		}
 		if (m == SCORE_UP) {
 			score += 10;
-			if (score > highscore) 
-				highscore = score;
+			health_up += 10;
 		}
 		if (m == POOKAH_BURST) {
 			score += 200;
-			if (score > highscore)
-				highscore = score;
+			health_up += 200;
 		}
 		if (m == FYGAR_BURST) {
 			score += 400;
-			if (score > highscore)
-				highscore = score;
+			health_up += 400;
+			
 		}
+		if (score > highscore)
+			highscore = score;
+
+		if (health_up >= 2000) {
+			player->lives++;
+			health_up = 0;
+		}
+			
 
 	}
 	//Destroy everything
