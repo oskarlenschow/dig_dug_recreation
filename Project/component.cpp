@@ -78,7 +78,7 @@ void RenderComponent::Update(float dt)
 		
 		if (sprite_index < old_index && go->mode == 4) {
 			
-			go->Send(BURST);
+			go->Receive(BURST);
 			go->enabled = false;
 		}
 		

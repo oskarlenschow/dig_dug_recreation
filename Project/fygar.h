@@ -27,7 +27,6 @@ public:
 		if (m == HIT)
 		{
 			SDL_Log("Fygar::Hit!");
-			enabled = false;
 		}
 		if (m == WALL) {
 			switch (direction)
@@ -66,6 +65,9 @@ public:
 		if (m == PUMP_RELEASE) {
 			moving = true;
 			mode = WALKING;
+		}
+		if (m == BURST) {
+			Send(FYGAR_BURST);
 		}
 	}
 

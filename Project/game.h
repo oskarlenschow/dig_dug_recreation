@@ -27,8 +27,10 @@ class Game : public GameObject
 	bool wait = false;
 
 	unsigned int score = 0;
+	unsigned int highscore = 0;
+	unsigned int enemies = 0;
 	unsigned int level = 1;
-	float last_time_bomb = 0;	//Last time since bomb.
+	float timer = 0;	//Timer for flashing text
 	bool flashing_text;
 
 public:
@@ -110,8 +112,9 @@ public:
 			(*pookah)->AddReceiver(this);
 			(*pookah)->AddReceiver(pump);
 			player->AddReceiver(*pookah);
-			AddReceiver(*pookah);  //NOT NEEDED NOW?
+			AddReceiver(*pookah);
 			game_objects.insert(*pookah);
+			enemies++;
 		}
 		
 		// Create all fygars and their behaviours + rendering components
@@ -138,8 +141,9 @@ public:
 			(*fygar)->AddReceiver(this);
 			(*fygar)->AddReceiver(pump);
 			player->AddReceiver(*fygar);
-			AddReceiver(*fygar);  //NOT NEEDED NOW?
+			AddReceiver(*fygar);
 			game_objects.insert(*fygar);
+			enemies++;
 		}
 		
 		PumpCollideComponent* pookah_pump_collide = new PumpCollideComponent();
@@ -160,19 +164,6 @@ public:
 
 		grid->AddComponent(grid_collide_component);
 
-		/*
-		bomb_pool.Create(MAX_NUM_BOMBS);
-		for (auto bomb = bomb_pool.pool.begin(); bomb != bomb_pool.pool.end(); bomb++)
-		{
-			BombBehaviourComponent* behaviour = new BombBehaviourComponent();
-			behaviour->Create(engine, *bomb, &game_objects);
-			RenderComponent* render = new RenderComponent();
-			render->Create(engine, *bomb, &game_objects, "data/bomb.bmp", 0.f);
-			(*bomb)->Create();
-			(*bomb)->AddComponent(behaviour);
-			(*bomb)->AddComponent(render);
-		}
-		*/
 		life_sprite = engine->createSprite("data/sprites/player_digging_0.png");
 		level_sprite = engine->createSprite("data/sprites/flower.png");
 		background_sprite = engine->createSprite("data/background.bmp");
@@ -180,48 +171,66 @@ public:
 	//Initialize player and aliens
 	virtual void Init()
 	{
-		player->Init(0,0);
+		player->Init(6 * CELL_SIZE, 9 * CELL_SIZE);
 		grid->Init(0,0);
 		
 		pookah_pool.pool.at(0)->Init(2 * CELL_SIZE, 5 * CELL_SIZE);
+		pookah_pool.pool.at(0)->direction = DIRECTION::DOWN;
 		pookah_pool.pool.at(1)->Init(10 * CELL_SIZE, 4 * CELL_SIZE);
 		pookah_pool.pool.at(2)->Init(9 * CELL_SIZE, 12 * CELL_SIZE);
+		pookah_pool.pool.at(2)->direction = DIRECTION::DOWN;
 		
 		fygar_pool.pool.at(0)->Init(2 * CELL_SIZE, 12 * CELL_SIZE);
 
 		enabled = true;
 	}
 	//Generate the next level
-	void nextLevel() {
+	virtual void nextLevel() {
 		level++;
+		enemies = 4;
 
-		player->position.x = 6 * CELL_SIZE;
-		player->position.y = 9 * CELL_SIZE;
-
+		player->ResetPosition();
 
 		grid->Reset();
+
+		pookah_pool.pool.at(0)->Init(2 * CELL_SIZE, 5 * CELL_SIZE);
+		pookah_pool.pool.at(0)->direction = DIRECTION::DOWN;
+		pookah_pool.pool.at(1)->Init(10 * CELL_SIZE, 4 * CELL_SIZE);
+		pookah_pool.pool.at(2)->Init(9 * CELL_SIZE, 12 * CELL_SIZE);
+		pookah_pool.pool.at(2)->direction = DIRECTION::DOWN;
+
+		fygar_pool.pool.at(0)->Init(2 * CELL_SIZE, 12 * CELL_SIZE);
 		
 		POOKAH_SPEED *= 1.2f;
 		FYGAR_SPEED *= 1.2f;
+	}
+	virtual void playerDeath() {
+		for (auto go = fygar_pool.pool.begin(); go != fygar_pool.pool.end(); go++) {
+			if ((*go)->enabled)
+				(*go)->ResetPosition();
+		}
+		for (auto go = pookah_pool.pool.begin(); go != pookah_pool.pool.end(); go++) {
+			if ((*go)->enabled)
+				(*go)->ResetPosition();
+		}
+
+		player->ResetPosition();
+
+		
 	}
 	//Update the game
 	virtual void Update(float dt)
 	{
 		AvancezLib::KeyStatus keys;
 
-		int elapsed_time = engine->getElapsedTime() * 1000.f;
-
-		if (elapsed_time % 1000 == 0)
-			cout << elapsed_time << endl;
-			//flashing_text = !flashing_text;
-
 		engine->getKeyStatus(keys);
 		if (keys.esc) {
 			Destroy();
 			engine->quit();
 		}
-		//std::cout << "hej" << endl;
+
 		float running = 0;  //Used to make the game stop, but still keep the score.
+
 		if (game_over)
 			running = 0.0;
 		else
@@ -241,12 +250,30 @@ public:
 		pump->Update(0);
 
 		player->Update(0);
-		/*
-		if ((engine->getElapsedTime() - last_time_bomb) >= (BOMB_TIME_INTERVAL / game_speed)) {
-			alien_pool.SelectRandom()->fire = true;
-			last_time_bomb = engine->getElapsedTime();
+
+		bool reset = true;
+		for (auto go = fygar_pool.pool.begin(); go != fygar_pool.pool.end(); go++) {
+			if ((*go)->enabled)
+				reset = false;
 		}
-		*/
+		for (auto go = pookah_pool.pool.begin(); go != pookah_pool.pool.end(); go++) {
+			if ((*go)->enabled)
+				reset = false;
+		}
+		//Instead of having it message based. This is because messages were handled in game.h before they were handled in enemies. So game got reset, 
+		//but then enemies got disabled afterwards, because the message was handled by them too late
+		if (reset)
+			nextLevel();
+
+		timer -= dt * game_speed;
+		if (timer < 0) {
+			timer = 1.5;
+			flashing_text = false;
+		}
+		else if(timer < 0.75f)
+			flashing_text = true;
+		
+	
 	}
 	//Draws the text and health sprite
 	virtual void Draw()
@@ -254,13 +281,21 @@ public:
 		SDL_Color red = { 255, 0, 0 };
 		char text[100];
 
-		if(!flashing_text)
+		if(flashing_text)
 			engine->drawText(60, 17, "1UP", { 255, 0, 0 }, 16);
 
 		snprintf(text, 100, "%d", score);
 		engine->drawText(70, 34, text, { 255, 255, 255 }, 16);
 
 		engine->drawText(SCREEN_WIDTH/2 - 80, 17, "HIGH SCORE", { 255, 0, 0 }, 16);
+
+		snprintf(text, 100, "%d", highscore);
+		engine->drawText(SCREEN_WIDTH / 2 - 50, 34, text, { 255, 255, 255 }, 16);
+
+		engine->drawText(SCREEN_WIDTH - 85, SCREEN_HEIGHT - CELL_SIZE, "ROUND", { 255, 255, 255 }, 16);
+
+		snprintf(text, 100, "%d", level);
+		engine->drawText(SCREEN_WIDTH - CELL_SIZE, SCREEN_HEIGHT - CELL_SIZE/2, text, { 255, 255, 255 }, 16);
 
 
 		for (int i = 0; i < player->lives; i++) {
@@ -276,6 +311,7 @@ public:
 			engine->drawText(250, 10, text, { 255, 255, 255 }, 25);
 		}
 		
+
 		engine->swapBuffers();
 		engine->clearWindow();
 	}
@@ -286,16 +322,28 @@ public:
 		{
 			game_over = true;
 		}
+		if (m == PLAYER_HIT) {
+			playerDeath();
+		}
 		if (m == WALL) {
 			Send(WALL);
 		}
 		if (m == SCORE_UP) {
 			score += 10;
-			if (score >= 300) {
-				nextLevel();
-				score = 0;
-			}
+			if (score > highscore) 
+				highscore = score;
 		}
+		if (m == POOKAH_BURST) {
+			score += 200;
+			if (score > highscore)
+				highscore = score;
+		}
+		if (m == FYGAR_BURST) {
+			score += 400;
+			if (score > highscore)
+				highscore = score;
+		}
+
 	}
 	//Destroy everything
 	virtual void Destroy()

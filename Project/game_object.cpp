@@ -20,6 +20,9 @@ void GameObject::Init(int x, int y)
 	SDL_Log("GameObject::Init");
 	position.x = x;
 	position.y = y;
+	start_position.x = x;
+	start_position.y = y;
+
 	for (auto it = components.begin(); it != components.end(); it++)
 		(*it)->Init();
 
@@ -31,6 +34,9 @@ void GameObject::InitPos(int x, int y) {
 }
 void GameObject::InitDir(DIRECTION dir) {
 	direction = dir;
+}
+void GameObject::ResetPosition() {
+	position = start_position;
 }
 void GameObject::Update(float dt)
 {

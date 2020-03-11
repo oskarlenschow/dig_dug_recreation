@@ -1,11 +1,5 @@
-﻿  component.cpp
+﻿  digdug.cpp
 D:\GL\Project\component.h(49,48): warning C4244: 'return': conversion from 'double' to 'unsigned int', possible loss of data
-D:\GL\Project\component.cpp(75,36): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
-D:\GL\Project\component.cpp(76,33): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
-  digdug.cpp
-D:\GL\Project\component.h(49,48): warning C4244: 'return': conversion from 'double' to 'unsigned int', possible loss of data
-D:\GL\Project\player.h(33,44): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-D:\GL\Project\player.h(33,28): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-D:\GL\Project\game.h(212,20): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-  Generating Code...
+D:\GL\Project\player.h(28,44): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\player.h(28,28): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
   Project.vcxproj -> D:\GL\Project\x64\Debug\Project.exe

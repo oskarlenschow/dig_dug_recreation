@@ -7,7 +7,7 @@
 #include <vector>
 
 
-enum Message { HIT, GAME_OVER, BOTH_DIRECTIONS, WALL, DIG, WALK, SCORE_UP, BURST, PUMP, PUMP_RELEASE};
+enum Message { HIT, GAME_OVER, BOTH_DIRECTIONS, WALL, DIG, WALK, SCORE_UP, BURST, PUMP, PUMP_RELEASE, POOKAH_BURST, FYGAR_BURST, PLAYER_HIT};
 
 class Component;
 
@@ -19,6 +19,7 @@ protected:
 
 public:
 	Vector2D position;
+	Vector2D start_position;
 	Vector2D dimensions;
 
 	DIRECTION direction;
@@ -34,6 +35,7 @@ public:
 	virtual void Init(int x, int y);
 	virtual void InitPos(int x, int y);
 	virtual void InitDir(DIRECTION dir);
+	virtual void ResetPosition();
 	virtual void Update(float dt);
 	virtual void Destroy();
 	virtual void AddReceiver(GameObject *go);

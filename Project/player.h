@@ -16,10 +16,6 @@ public:
 		this->pump = pump;
 	}
 
-	virtual void Init(int x, int y)
-	{
-	}
-
 	virtual void Update(float dt)
 	{
 		AvancezLib::KeyStatus keys;
@@ -27,9 +23,8 @@ public:
 		float speed = dt * PLAYER_SPEED;
 
 		if (keys.space) {
-			go->mode = ATTACKING;
-			if (can_pump)
-			{
+			if (can_pump) {
+				go->mode = ATTACKING;
 				pump->Init(go->position.x, go->position.y);
 				pump->direction = go->direction;
 				can_pump = false;
@@ -155,12 +150,6 @@ public:
 			go->position.y = CELL_SIZE * 2;
 	}
 
-	// return true if enough time has passed from the previous rocket
-	bool CanPump()
-	{
-		SDL_Log("pump!");
-		return true;
-	}
 };
 
 
@@ -181,10 +170,6 @@ public:
 		mode = WALKING;
 		axis = DIRECTION_AXIS::BOTH;
 		direction = DIRECTION::LEFT;
-		position.x = SCREEN_WIDTH - CELL_SIZE;
-		position.y = CELL_SIZE * 2;
-		dimensions.x = CELL_SIZE;
-		dimensions.y = CELL_SIZE;
 	}
 	virtual void Receive(Message m) 
 	{
@@ -195,6 +180,8 @@ public:
 			RemoveLife();
 			if (lives < 0)
 				Send(GAME_OVER);
+			else
+				Send(PLAYER_HIT);
 			break;
 		case GAME_OVER:
 			break;

@@ -9,14 +9,11 @@ class Pump : public GameObject
 {
 
 public:
-	Vector2D start_position;
 
 	virtual void Init(int x, int y)
 	{
 		SDL_Log("Pump::Init");
 		GameObject::Init(x, y);
-		start_position.x = x;
-		start_position.y = y;
 		mode = WALKING;
 		moving = true;
 	}
@@ -31,7 +28,7 @@ public:
 			moving = false;
 			//SDL_Log("Pump::Hit");
 		}
-		if (m == BURST) {
+		if (m == FYGAR_BURST || m == POOKAH_BURST) {
 			enabled = false;
 		}
 	}
@@ -43,8 +40,11 @@ public:
 	virtual void Update(float dt)
 	{
 		
-		
-		if (abs(go->position.x - dynamic_cast<Pump*>(go)->start_position.x) < CELL_SIZE * 3 && abs(go->position.y - dynamic_cast<Pump*>(go)->start_position.y) < CELL_SIZE * 3 && go->moving) { //Ugly cast
+		cout << "wot" << endl;
+		if (abs(go->position.x - go->start_position.x) > CELL_SIZE * 3 || abs(go->position.y - go->start_position.y) > CELL_SIZE * 3) {
+			go->enabled = false;
+		}
+		else if (go->moving) {
 			switch (go->direction)
 			{
 			case DIRECTION::LEFT:
