@@ -48,6 +48,9 @@
     <ClInclude Include="rock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="flame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="avancezlib.cpp">

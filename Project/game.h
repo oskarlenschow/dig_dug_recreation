@@ -1,6 +1,9 @@
 #pragma once
 
 #include <iostream>
+#include <map>
+
+using namespace std;
 class Game : public GameObject
 {
 	std::set<GameObject*> game_objects;	// http://www.cplusplus.com/reference/set/set/
@@ -8,6 +11,8 @@ class Game : public GameObject
 	AvancezLib* engine;
 
 	ObjectPool<Rock> rock_pool;			// used to instantiate bombs
+
+	ObjectPool<Flame> flame_pool;		// used to instantiate bombs
 
 	ObjectPool<Pookah> pookah_pool;		// used to instantiate pookahs
 
@@ -22,6 +27,9 @@ class Game : public GameObject
 	Sprite * life_sprite;
 	Sprite * level_sprite;
 	Sprite* background_sprite;
+
+	map < string, Mix_Music*> music;
+	map < string, Mix_Chunk*> sounds;
 
 	bool game_over = false;
 	bool wait = false;
@@ -55,7 +63,21 @@ public:
 		player_render->AddSprite("data/sprites/player_walk_1.png", IDLE);
 		player_render->AddSprite("data/sprites/player_pumping_0.png", ATTACKING);
 		player_render->AddSprite("data/sprites/player_pumping_1.png", ATTACKING);
+		player_render->AddSprite("data/sprites/player_death_0.png", DYING);
+		player_render->AddSprite("data/sprites/player_death_1.png", DYING);
+		player_render->AddSprite("data/sprites/player_death_2.png", DYING);
+		player_render->AddSprite("data/sprites/player_death_3.png", DYING);
+		player_render->AddSprite("data/sprites/player_death_4.png", DYING);
+
+		CollideComponent* flame_collide_component = new CollideComponent();
+		flame_collide_component->Create(engine, player, &game_objects, (ObjectPool<GameObject>*) & flame_pool);
 		
+
+		player->Create();
+		player->AddComponent(player_behaviour);
+		player->AddComponent(player_render);
+		player->AddComponent(flame_collide_component);
+
 		RenderComponent* pump_render = new RenderComponent();
 		pump_render->Create(engine, pump, &game_objects, "data/sprites/pump_0.png", 0.f);
 		PumpBehaviourComponent* pump_behaviour = new PumpBehaviourComponent();
@@ -67,9 +89,7 @@ public:
 
 		game_objects.insert(pump);
 
-		player->Create();
-		player->AddComponent(player_behaviour);
-		player->AddComponent(player_render);
+		
 
 		grid = new Grid();
 
@@ -89,32 +109,82 @@ public:
 		player->AddReceiver(this);
 		game_objects.insert(grid);
 		game_objects.insert(player);
-		// Create all pookahs and their behaviours + rendering components
+
+		// Create all rocks and their behaviours + rendering components
+		flame_pool.Create(10);
+		for (auto flame = flame_pool.pool.begin(); flame != flame_pool.pool.end(); flame++)
+		{
+			FlameBehaviourComponent* behaviour_component = new FlameBehaviourComponent();
+			behaviour_component->Create(engine, *flame, &game_objects);
+			RenderComponent* render_component = new RenderComponent();
+			render_component->Create(engine, *flame, &game_objects, "data/sprites/flame_0.png", 0.f);
+			render_component->AddSprite("data/sprites/flame_0.png", DYING);
+			render_component->AddSprite("data/sprites/flame_1.png", DYING);
+			render_component->AddSprite("data/sprites/flame_2.png", DYING);
+
+			(*flame)->Create();
+			(*flame)->AddComponent(behaviour_component);
+			(*flame)->AddComponent(render_component);
+			(*flame)->AddReceiver(this);
+			(*flame)->AddReceiver(pump);
+			game_objects.insert(*flame);
+		}
 		
+		// Create all rocks and their behaviours + rendering components
+		rock_pool.Create(1);
+		for (auto rock = rock_pool.pool.begin(); rock != rock_pool.pool.end(); rock++)
+		{
+			RockBehaviourComponent* rock_behaviour_component = new RockBehaviourComponent();
+			rock_behaviour_component->Create(engine, *rock, &game_objects);
+			RenderComponent* rock_render_component = new RenderComponent();
+			rock_render_component->Create(engine, *rock, &game_objects, "data/sprites/rock.png", 0.f);
+			rock_render_component->AddSprite("data/sprites/rock.png", CRUSHED);
+
+			GridRockCollideComponent* grid_collide_component = new GridRockCollideComponent();
+			grid_collide_component->Create(engine, grid, &game_objects, *rock);
+
+
+			(*rock)->Create();
+			(*rock)->AddComponent(rock_behaviour_component);
+			(*rock)->AddComponent(rock_render_component);
+			(*rock)->AddComponent(grid_collide_component);
+			(*rock)->AddReceiver(this);
+			(*rock)->AddReceiver(pump);
+			player->AddReceiver(*rock);
+			AddReceiver(*rock);
+			game_objects.insert(*rock);
+		}
+		// Create all pookahs and their behaviours + rendering components
 		pookah_pool.Create(3);
 		for (auto pookah = pookah_pool.pool.begin(); pookah != pookah_pool.pool.end(); pookah++)
 		{
-			PookahBehaviourComponent* pookah_behaviour_component = new PookahBehaviourComponent();
-			pookah_behaviour_component->Create(engine, *pookah, &game_objects);
-			RenderComponent* pookah_render_component = new RenderComponent();
-			pookah_render_component->Create(engine, *pookah, &game_objects, "data/sprites/pookah_walk_0.png", 3.f);
-			pookah_render_component->AddSprite("data/sprites/pookah_walk_1.png", WALKING);
-			pookah_render_component->AddSprite("data/sprites/pookah_digging_0.png", DIGGING);
-			pookah_render_component->AddSprite("data/sprites/pookah_digging_1.png", DIGGING);
-			pookah_render_component->AddSprite("data/sprites/pookah_inflate_0.png", DYING);
-			pookah_render_component->AddSprite("data/sprites/pookah_inflate_1.png", DYING);
-			pookah_render_component->AddSprite("data/sprites/pookah_inflate_2.png", DYING);
-			pookah_render_component->AddSprite("data/sprites/pookah_inflate_3.png", DYING);
+			PookahBehaviourComponent* behaviour_component = new PookahBehaviourComponent();
+			behaviour_component->Create(engine, *pookah, &game_objects);
+			RenderComponent* render_component = new RenderComponent();
+			render_component->Create(engine, *pookah, &game_objects, "data/sprites/pookah_walk_0.png", 3.f);
+			render_component->AddSprite("data/sprites/pookah_walk_1.png", WALKING);
+			render_component->AddSprite("data/sprites/pookah_digging_0.png", DIGGING);
+			render_component->AddSprite("data/sprites/pookah_digging_1.png", DIGGING);
+			render_component->AddSprite("data/sprites/pookah_inflate_0.png", DYING);
+			render_component->AddSprite("data/sprites/pookah_inflate_1.png", DYING);
+			render_component->AddSprite("data/sprites/pookah_inflate_2.png", DYING);
+			render_component->AddSprite("data/sprites/pookah_inflate_3.png", DYING);
+			render_component->AddSprite("data/sprites/pookah_crushed.png", CRUSHED);
+
 			GridPathComponent* grid_path_component = new GridPathComponent();
 			grid_path_component->Create(engine, grid, &game_objects, *pookah, player);
 
 			GridCollideComponent* grid_collide_component = new GridCollideComponent();
 			grid_collide_component->Create(engine, grid, &game_objects, *pookah, player);
 
+			CollideComponent* collide_component = new CollideComponent();
+			collide_component->Create(engine, *pookah, &game_objects, (ObjectPool<GameObject>*) & rock_pool);
+
 
 			(*pookah)->Create();
-			(*pookah)->AddComponent(pookah_behaviour_component);
-			(*pookah)->AddComponent(pookah_render_component);
+			(*pookah)->AddComponent(behaviour_component);
+			(*pookah)->AddComponent(render_component);
+			(*pookah)->AddComponent(collide_component);
 			(*pookah)->AddComponent(grid_collide_component);
 			(*pookah)->AddComponent(grid_path_component);
 			(*pookah)->AddReceiver(this);
@@ -130,27 +200,32 @@ public:
 		fygar_pool.Create(1);
 		for (auto fygar = fygar_pool.pool.begin(); fygar != fygar_pool.pool.end(); fygar++)
 		{
-			FygarBehaviourComponent* fygar_behaviour_component = new FygarBehaviourComponent();
-			fygar_behaviour_component->Create(engine, *fygar, &game_objects, &rock_pool);
-			RenderComponent* fygar_render_component = new RenderComponent();
-			fygar_render_component->Create(engine, *fygar, &game_objects, "data/sprites/fygar_walk_0.png", 6.f);
-			fygar_render_component->AddSprite("data/sprites/fygar_walk_1.png", WALKING);
-			fygar_render_component->AddSprite("data/sprites/fygar_fire_0.png", ATTACKING);
-			fygar_render_component->AddSprite("data/sprites/fygar_digging_0.png", DIGGING);
-			fygar_render_component->AddSprite("data/sprites/fygar_digging_1.png", DIGGING);
-			fygar_render_component->AddSprite("data/sprites/fygar_inflate_0.png", DYING);
-			fygar_render_component->AddSprite("data/sprites/fygar_inflate_1.png", DYING);
-			fygar_render_component->AddSprite("data/sprites/fygar_inflate_2.png", DYING);
-			fygar_render_component->AddSprite("data/sprites/fygar_inflate_3.png", DYING);
+			FygarBehaviourComponent* behaviour_component = new FygarBehaviourComponent();
+			behaviour_component->Create(engine, *fygar, &game_objects, &flame_pool);
+			RenderComponent* render_component = new RenderComponent();
+			render_component->Create(engine, *fygar, &game_objects, "data/sprites/fygar_walk_0.png", 6.f);
+			render_component->AddSprite("data/sprites/fygar_walk_1.png", WALKING);
+			render_component->AddSprite("data/sprites/fygar_fire_0.png", ATTACKING);
+			render_component->AddSprite("data/sprites/fygar_digging_0.png", DIGGING);
+			render_component->AddSprite("data/sprites/fygar_digging_1.png", DIGGING);
+			render_component->AddSprite("data/sprites/fygar_inflate_0.png", DYING);
+			render_component->AddSprite("data/sprites/fygar_inflate_1.png", DYING);
+			render_component->AddSprite("data/sprites/fygar_inflate_2.png", DYING);
+			render_component->AddSprite("data/sprites/fygar_inflate_3.png", DYING);
+			render_component->AddSprite("data/sprites/fygar_crushed.png", CRUSHED);
 			GridPathComponent* grid_path_component = new GridPathComponent();
 			grid_path_component->Create(engine, grid, &game_objects, *fygar, player);
 
 			GridCollideComponent* grid_collide_component = new GridCollideComponent();
 			grid_collide_component->Create(engine, grid, &game_objects, *fygar, player);
 
+			CollideComponent* collide_component = new CollideComponent();
+			collide_component->Create(engine, *fygar, &game_objects, (ObjectPool<GameObject>*) & rock_pool);
+
 			(*fygar)->Create();
-			(*fygar)->AddComponent(fygar_behaviour_component);
-			(*fygar)->AddComponent(fygar_render_component);
+			(*fygar)->AddComponent(behaviour_component);
+			(*fygar)->AddComponent(render_component);
+			(*fygar)->AddComponent(collide_component);
 			(*fygar)->AddComponent(grid_collide_component);
 			(*fygar)->AddComponent(grid_path_component);
 			(*fygar)->AddReceiver(this);
@@ -160,6 +235,7 @@ public:
 			game_objects.insert(*fygar);
 			enemies++;
 		}
+		
 		
 		PumpCollideComponent* pookah_pump_collide = new PumpCollideComponent();
 		pookah_pump_collide->Create(engine, pump, &game_objects, (ObjectPool<GameObject>*) &pookah_pool);
@@ -193,6 +269,10 @@ public:
 		
 		fygar_pool.pool.at(0)->Init(2 * CELL_SIZE, 12 * CELL_SIZE);
 		fygar_pool.pool.at(0)->direction = DIRECTION::RIGHT;
+
+		rock_pool.pool.at(0)->Init(7 * CELL_SIZE, 7 * CELL_SIZE);
+		rock_pool.pool.at(0)->direction = DIRECTION::NONE;
+
 		
 		enabled = true;
 	}
@@ -214,6 +294,9 @@ public:
 
 		fygar_pool.pool.at(0)->Init(2 * CELL_SIZE, 12 * CELL_SIZE);
 		fygar_pool.pool.at(0)->direction = DIRECTION::RIGHT;
+
+		rock_pool.pool.at(0)->Init(7 * CELL_SIZE, 7 * CELL_SIZE);
+		rock_pool.pool.at(0)->direction = DIRECTION::NONE;
 		
 		POOKAH_SPEED *= 1.2f;
 		FYGAR_SPEED *= 1.2f;
@@ -255,10 +338,15 @@ public:
 		for (auto go = game_objects.begin(); go != game_objects.end(); go++)
 			(*go)->Update(dt * running);
 
+
+		// All of these are just to ensure they render on top of everything else... Ugly solution!
+		for (auto go = rock_pool.pool.begin(); go != rock_pool.pool.end(); go++)
+			(*go)->Update(0);
 		for (auto go = fygar_pool.pool.begin(); go != fygar_pool.pool.end(); go++)
 			(*go)->Update(0);
-
 		for (auto go = pookah_pool.pool.begin(); go != pookah_pool.pool.end(); go++)
+			(*go)->Update(0);
+		for (auto go = flame_pool.pool.begin(); go != flame_pool.pool.end(); go++)
 			(*go)->Update(0);
 
 		pump->Update(0);
@@ -322,7 +410,8 @@ public:
 
 		if (game_over) {
 			snprintf(text, 100, "*** G A M E   O V E R ***");
-			engine->drawText(250, 10, text, { 255, 255, 255 }, 25);
+			engine->drawText(13, SCREEN_HEIGHT / 2 - 20, text, { 255, 255, 255 }, 17);
+			engine->drawText(75, SCREEN_HEIGHT / 2, "Press space to restart", { 255, 255, 255 }, 14);
 		}
 		
 
@@ -378,7 +467,10 @@ public:
 		rock_pool.Destroy();
 
 		fygar_pool.Destroy();
+
 		pookah_pool.Destroy();
+
+		flame_pool.Destroy();
 
 		delete player;
 		delete pump;

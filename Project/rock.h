@@ -6,10 +6,13 @@ public:
 
 	void Update(float dt)
 	{
-		go->position.x += ROCK_SPEED * dt; // Rock_speed * time
+		double move = ROCK_SPEED * dt;
 
-		if (go->position.x > 480) // When the Rock reaches the bottom of the screen, it disappears.
-			go->enabled = false;
+		if (move > CELL_SIZE / 4)
+			move = CELL_SIZE / 4;
+
+		if (go->moving)
+			go->position.y += move;
 	}
 };
 
@@ -33,8 +36,20 @@ public:
 
 		if (m == HIT)
 		{
-			enabled = false;
-			SDL_Log("Rock::Hit");
+			if (mode != CRUSHED) {
+				mode = CRUSHED;
+				RenderComponent* renderComponent = GetComponent<RenderComponent*>();
+				renderComponent->SetImageIndex(0);
+				renderComponent->SetImageSpeed(0.5f);
+			}
 		}
+		if (m == BURST) {
+			enabled = false;
+		}
+		if (m == WALL) {
+			
+		}
+		if (m == NO_WALL)
+			moving = true;
 	}
 };

@@ -90,3 +90,13 @@ public:
 	virtual void Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, GameObject* go0, GameObject* player);
 	virtual void Update(float dt);
 };
+
+class GridRockCollideComponent : public Component {
+	Grid* grid;
+	GameObject* go0;
+private:
+	inline int from2Dto1Dindex(int x, int y, int columns) { return x + y * columns; }
+public:
+	virtual void Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, GameObject* go0);
+	virtual void Update(float dt);
+};

@@ -13,7 +13,6 @@ public:
 	{
 		SDL_Log("Fygar::Init");
 		GameObject::Init(x, y);
-		direction = DIRECTION::NONE;
 		position.x = x;
 		position.y = y;
 	}
@@ -26,7 +25,13 @@ public:
 	{
 		if (m == HIT)
 		{
-			SDL_Log("Fygar::Hit!");
+			if (mode != CRUSHED) {
+				moving = false;
+				mode = CRUSHED;
+				RenderComponent* renderComponent = GetComponent<RenderComponent*>();
+				renderComponent->SetImageIndex(0);
+				renderComponent->SetImageSpeed(0.5f);
+			}
 		}
 		if (m == WALL) {
 			switch (direction)
@@ -64,7 +69,13 @@ public:
 		}
 		if (m == BURST) {
 			Send(FYGAR_BURST);
+			enabled = false;
 		}
+		if (m == EXTINGUISH) {
+			moving = true;
+			mode = WALKING;
+		}
+		
 	}
 
 	void RemoveLife()
@@ -77,20 +88,20 @@ public:
 class FygarBehaviourComponent : public Component
 {
 
-	float dying_timer;	// time from the last time the fire button was pressed
-	ObjectPool<Rock>* bombs_pool;
+	float timer;	// time from the last flame
+	ObjectPool<Flame>* flame_pool;
 public:
 	virtual ~FygarBehaviourComponent() {}
 
-	virtual void Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, ObjectPool<Rock>* bombs_pool)
+	virtual void Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, ObjectPool<Flame>* flame_pool)
 	{
 		Component::Create(engine, go, game_objects);
-		this->bombs_pool = bombs_pool;
+		this->flame_pool = flame_pool;
 	}
 
 	virtual void Init()
 	{
-		dying_timer = 4;
+		timer = 3;
 	}
 
 	virtual void Update(float dt)
@@ -105,18 +116,42 @@ public:
 			break;
 		}
 		
+		timer -= dt * game_speed;
 
-
-		if (CanFire())
+		if (timer <= 0 && go->mode != CRUSHED && go->mode != DYING)
 		{
-			// fetches a rocket from the pool and use it in game_objects
-			/*Bomb* bomb = bombs_pool->FirstAvailable();
-			if (bomb != NULL)	// rocket is NULL is the object pool can not provide an object
+			Flame* flame = flame_pool->FirstAvailable();
+			if (flame != NULL)
 			{
-				bomb->Init(go->position.x, go->position.y + 32);
-				game_objects->insert(bomb);
-			}*/
-			//((Pookah*)go)->fire = false;
+				go->moving = false;
+				switch (go->direction)
+				{
+				case DIRECTION::LEFT:
+					flame->Init(go->position.x - CELL_SIZE, go->position.y, DIRECTION::LEFT, go);
+					break;
+				case DIRECTION::RIGHT:
+					flame->Init(go->position.x + CELL_SIZE, go->position.y, DIRECTION::RIGHT, go);
+					break;
+				case DIRECTION::UP:
+					flame->Init(go->position.x, go->position.y - CELL_SIZE, DIRECTION::UP, go);
+					break;
+				case DIRECTION::DOWN:
+					flame->Init(go->position.x, go->position.y + CELL_SIZE, DIRECTION::DOWN, go);
+					break;
+				case DIRECTION::NONE:
+					break;
+				default:
+					break;
+				}
+				go->mode = ATTACKING;
+				
+				RenderComponent* renderComponent = flame->GetComponent<RenderComponent*>();
+				renderComponent->SetImageIndex(0);
+				renderComponent->SetImageSpeed(6.f);
+
+			}
+			timer = 2;
+			
 		}
 
 	}
@@ -125,8 +160,8 @@ public:
 	// move the Fygar left or right, depending on direction
 	void Move(float move)
 	{
-		if (move > CELL_SIZE / 2)
-			move = CELL_SIZE / 2;
+		if (move > CELL_SIZE / 4)
+			move = CELL_SIZE / 4;
 		
 		switch (go->direction)
 		{
@@ -167,11 +202,5 @@ public:
 			go->direction = DIRECTION::DOWN;
 		}
 		
-	}
-
-	// return true if enough time has passed from the previous bomb
-	bool CanFire()
-	{
-		return false;
 	}
 };

@@ -11,7 +11,6 @@ public:
 	{
 		SDL_Log("Pookah::Init");
 		GameObject::Init(x, y);
-		direction = DIRECTION::NONE;
 	}
 	virtual void InitPos(int x, int y) {
 		SDL_Log("Pookah::InitPos");
@@ -22,7 +21,14 @@ public:
 	{
 		if (m == HIT)
 		{
-			SDL_Log("Pookah::Hit!");
+			
+			if (mode != CRUSHED) {
+				moving = false;
+				mode = CRUSHED;
+				RenderComponent* renderComponent = GetComponent<RenderComponent*>();
+				renderComponent->SetImageIndex(0);
+				renderComponent->SetImageSpeed(0.5f);
+			}
 		}
 		if (m == WALL) {
 			switch (direction)
@@ -60,24 +66,19 @@ public:
 		}
 		if (m == BURST) {
 			Send(POOKAH_BURST);
+			enabled = false;
 		}
 	}
 };
 
 class PookahBehaviourComponent : public Component
 {
-	float dying_timer;	// time from the last time the fire button was pressed
 public:
 	virtual ~PookahBehaviourComponent() {}
 
 	virtual void Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects)
 	{
 		Component::Create(engine, go, game_objects);
-	}
-
-	virtual void Init()
-	{
-		dying_timer = 4;
 	}
 
 	virtual void Update(float dt)
@@ -96,8 +97,8 @@ public:
 	// move the Pookah left or right, depending on direction
 	void Move(float move)
 	{
-		if (move > CELL_SIZE / 2)
-			move = CELL_SIZE / 2;
+		if (move > CELL_SIZE / 4)
+			move = CELL_SIZE / 4;
 
 		switch (go->direction)
 		{

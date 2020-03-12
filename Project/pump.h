@@ -26,7 +26,6 @@ public:
 		if (m == PUMP)
 		{
 			moving = false;
-			//SDL_Log("Pump::Hit");
 		}
 		if (m == FYGAR_BURST || m == POOKAH_BURST) {
 			enabled = false;

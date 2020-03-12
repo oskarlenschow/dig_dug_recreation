@@ -15,7 +15,7 @@ void RenderComponent::Create(AvancezLib* engine, GameObject* go, std::set<GameOb
 {
 	Component::Create(engine, go, game_objects);
 	
-	for (int i = 0; i < 5; i++) { //Create the 2D vector of sprites, depending on mode
+	for (int i = 0; i < 6; i++) { //Create the 2D vector of sprites, depending on mode
 		vector <Sprite*> temp;
 		sprites.insert(make_pair(i, temp));
 	}
@@ -76,10 +76,10 @@ void RenderComponent::Update(float dt)
 		//cout << animation_speed << endl;
 		
 		
-		if (sprite_index < old_index && go->mode == 4) {
+		if (sprite_index < old_index && (go->mode == 4 || go->mode == 5)) {
 			
 			go->Receive(BURST);
-			go->enabled = false;
+			
 		}
 		
 

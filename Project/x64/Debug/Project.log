@@ -1,66 +1,13 @@
-﻿  avancezlib.cpp
-  component.cpp
-C:\gea\Project\component.h(49,48): warning C4244: 'return': conversion from 'double' to 'unsigned int', possible loss of data
-C:\gea\Project\component.cpp(74,36): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
-C:\gea\Project\component.cpp(75,33): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
-  digdug.cpp
-C:\gea\Project\component.h(49,48): warning C4244: 'return': conversion from 'double' to 'unsigned int', possible loss of data
-C:\gea\Project\player.h(28,44): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\player.h(28,28): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-  game_object.cpp
-C:\gea\Project\component.h(49,48): warning C4244: 'return': conversion from 'double' to 'unsigned int', possible loss of data
-  grid.cpp
-C:\gea\Project\component.h(49,48): warning C4244: 'return': conversion from 'double' to 'unsigned int', possible loss of data
-C:\gea\Project\grid.cpp(80,22): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(81,22): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(83,20): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(84,20): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(86,25): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(87,22): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(89,23): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(90,20): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(92,27): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(93,24): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(95,25): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(96,22): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(204,73): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(204,42): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(206,73): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(206,35): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(260,71): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(260,36): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(262,71): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(262,36): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(264,71): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(264,36): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(266,71): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(266,36): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(271,68): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(271,33): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(274,68): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(274,33): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(278,67): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(278,32): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(281,67): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(281,32): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(284,67): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(284,32): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(287,67): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(287,32): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(335,63): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(335,50): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(341,65): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(341,51): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(347,61): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(347,49): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(353,67): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(353,52): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(385,20): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(386,17): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(387,23): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(388,20): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(444,26): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-C:\gea\Project\grid.cpp(445,26): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-  Generating Code...
-  LINK : C:\gea\Project\x64\Debug\Project.exe not found or not built by the last incremental link; performing full link
-  Project.vcxproj -> C:\gea\Project\x64\Debug\Project.exe
+﻿  digdug.cpp
+D:\GL\Project\component.h(49,48): warning C4244: 'return': conversion from 'double' to 'unsigned int', possible loss of data
+D:\GL\Project\player.h(29,45): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\player.h(29,29): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\fygar.h(130,58): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\fygar.h(130,33): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\fygar.h(133,58): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\fygar.h(133,33): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\fygar.h(136,49): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\fygar.h(136,30): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\fygar.h(139,49): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\GL\Project\fygar.h(139,30): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+  Project.vcxproj -> D:\GL\Project\x64\Debug\Project.exe

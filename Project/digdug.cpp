@@ -17,8 +17,9 @@ const unsigned int ATTACKING = 1;
 const unsigned int DIGGING = 2;
 const unsigned int IDLE = 3;
 const unsigned int DYING = 4;
+const unsigned int CRUSHED = 5;
 
-const unsigned int MODES = 5;
+const unsigned int MODES = 6;
 
 
 const unsigned int	CELL_SIZE = 32;
@@ -40,16 +41,18 @@ float game_speed = 1.f;		// speed of the game; it is increased each time all the
 
 #include "component.h"
 #include "game_object.h"
-
+#include "SDL_mixer.h"
 
 #include "pump.h"
 #include "rock.h"
+#include "flame.h"
 #include "player.h"
 #include "pookah.h"
 #include "fygar.h"
 #include "grid.h"
 
 #include "game.h"
+
 
 
 int main(int argc, char** argv)

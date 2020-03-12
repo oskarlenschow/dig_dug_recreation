@@ -293,6 +293,28 @@ void GridRenderComponent::Update(float dt) {
 		}
 	}
 }
+void GridRockCollideComponent::Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, GameObject* go0) {
+	Component::Create(engine, go, game_objects);
+	this->go0 = go0;
+	this->grid = dynamic_cast<Grid*>(go);
+}
+
+void GridRockCollideComponent::Update(float dt) {
+
+	Vector2D center_cell = Vector2D(floor((go0->position.x + (go0->dimensions.x / 2)) / grid->course_cell_size),
+		floor((go0->position.y + (go0->dimensions.y / 2)) / grid->course_cell_size));
+
+	Vector2D bottom_cell = Vector2D(floor((go0->position.x + (go0->dimensions.x / 2)) / grid->course_cell_size),
+		floor(go0->position.y / grid->course_cell_size) + 1);
+
+	if (!grid->course_grid[from2Dto1Dindex(bottom_cell.x, bottom_cell.y, grid->course_columns)]) {
+		go0->position.y = center_cell.y * grid->course_cell_size;
+		go0->Receive(WALL);
+	}
+	else
+		go0->Receive(NO_WALL);
+
+}
 
 void GridCollideComponent::Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, GameObject* go0, GameObject* player) {
 	Component::Create(engine, go, game_objects);
@@ -300,6 +322,7 @@ void GridCollideComponent::Create(AvancezLib* engine, GameObject* go, std::set<G
 	this->player = player;
 	this->grid = dynamic_cast<Grid*>(go);
 }
+
 void GridCollideComponent::Update(float dt) {
 	Vector2D center_cell = Vector2D(floor((go0->position.x + (go0->dimensions.x / 2)) / grid->course_cell_size),
 		floor((go0->position.y + (go0->dimensions.y / 2)) / grid->course_cell_size));
