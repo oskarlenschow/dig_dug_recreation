@@ -104,7 +104,7 @@ void CollideComponent::Update(float dt)
 	for (auto i = 0; i < coll_objects->pool.size(); i++)
 	{
 		GameObject * go0 = coll_objects->pool[i];
-		if (go0->enabled)
+		if (go0->enabled && go0->moving)
 		{
 			if ((go0->position.x > go->position.x - 10) &&
 				(go0->position.x < go->position.x + 10) &&

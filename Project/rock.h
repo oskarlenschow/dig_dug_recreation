@@ -47,7 +47,7 @@ public:
 			enabled = false;
 		}
 		if (m == WALL) {
-			
+			moving = false;
 		}
 		if (m == NO_WALL)
 			moving = true;

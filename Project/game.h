@@ -54,7 +54,7 @@ public:
 		if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) < 0) {
 			cout << "Mixer init error: " << Mix_GetError() << endl;
 		}
-
+		
 		// Create the player and the behaviour + rendering component + collision
 		player = new Player();
 		pump = new Pump();
@@ -261,8 +261,9 @@ public:
 		background_sprite = engine->createSprite("data/background.bmp");
 
 
-		
-
+		LoadMusic("song.mp3");
+		PlayMusic(music["song.mp3"]);
+		LoadMusic("level_clear.mp3");
 
 	}
 	virtual void LoadMusic(string path) {
@@ -314,6 +315,7 @@ public:
 		level++;
 		enemies = 4;
 
+		PlayMusic(music["level_clear.mp3"]);
 		player->ResetPosition();
 
 		grid->Reset();
@@ -358,7 +360,16 @@ public:
 			Destroy();
 			engine->quit();
 		}
-
+		else if (keys.space) {
+			PauseMusic();
+		}
+		else if (!keys.up && !keys.down && !keys.left && !keys.right) {
+			PauseMusic();
+		}
+		else {
+			ResumeMusic();
+		}
+		
 		float running = 0;  //Used to make the game stop, but still keep the score.
 
 		if (game_over)
