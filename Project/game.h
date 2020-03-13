@@ -49,6 +49,12 @@ public:
 		SDL_Log("Game::Create");
 
 		this->engine = engine;
+
+
+		if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) < 0) {
+			cout << "Mixer init error: " << Mix_GetError() << endl;
+		}
+
 		// Create the player and the behaviour + rendering component + collision
 		player = new Player();
 		pump = new Pump();
@@ -253,6 +259,33 @@ public:
 		life_sprite = engine->createSprite("data/sprites/player_digging_0.png");
 		level_sprite = engine->createSprite("data/sprites/flower.png");
 		background_sprite = engine->createSprite("data/background.bmp");
+
+
+		
+
+
+	}
+	virtual void LoadMusic(string path) {
+		string fullpath = "data/sounds/";
+		fullpath.append(path);
+		music[path] = Mix_LoadMUS(fullpath.c_str());
+		if (music[path] == NULL)
+			cout << "Failed to load " << fullpath.c_str() << ", " << Mix_GetError() << endl;
+	}
+	virtual void PlayMusic(Mix_Music* music) {
+		Mix_PlayMusic(music, -1);
+	}
+	virtual void PauseMusic() {
+		if (Mix_PlayingMusic())
+			Mix_PauseMusic();
+	}
+	virtual void ResumeMusic() {
+		if (Mix_PausedMusic())
+			Mix_ResumeMusic();
+	}
+
+	virtual void PlaySound(Mix_Chunk* sound) {
+		Mix_PlayChannel(2, sound, 0);
 	}
 	//Initialize player and aliens
 	virtual void Init()
@@ -458,6 +491,8 @@ public:
 	virtual void Destroy()
 	{
 		SDL_Log("Game::Destroy");
+
+		Mix_Quit();
 
 		for (auto go = game_objects.begin(); go != game_objects.end(); go++)
 			(*go)->Destroy();
