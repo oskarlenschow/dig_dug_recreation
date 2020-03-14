@@ -1,18 +1,15 @@
-﻿  component.cpp
-D:\GL\Project\component.h(49,48): warning C4244: 'return': conversion from 'double' to 'unsigned int', possible loss of data
-D:\GL\Project\component.cpp(71,28): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-D:\GL\Project\component.cpp(104,32): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+﻿  avancezlib.cpp
   digdug.cpp
-D:\GL\Project\component.h(49,48): warning C4244: 'return': conversion from 'double' to 'unsigned int', possible loss of data
-D:\GL\Project\player.h(29,45): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-D:\GL\Project\player.h(29,29): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-D:\GL\Project\fygar.h(131,58): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-D:\GL\Project\fygar.h(131,33): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-D:\GL\Project\fygar.h(134,58): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-D:\GL\Project\fygar.h(134,33): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-D:\GL\Project\fygar.h(137,49): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-D:\GL\Project\fygar.h(137,30): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-D:\GL\Project\fygar.h(140,49): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-D:\GL\Project\fygar.h(140,30): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+C:\gea\Project\component.h(49,48): warning C4244: 'return': conversion from 'double' to 'unsigned int', possible loss of data
+C:\gea\Project\player.h(29,45): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+C:\gea\Project\player.h(29,29): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+C:\gea\Project\fygar.h(131,58): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+C:\gea\Project\fygar.h(131,33): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+C:\gea\Project\fygar.h(134,58): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+C:\gea\Project\fygar.h(134,33): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+C:\gea\Project\fygar.h(137,49): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+C:\gea\Project\fygar.h(137,30): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+C:\gea\Project\fygar.h(140,49): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+C:\gea\Project\fygar.h(140,30): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
   Generating Code...
-  Project.vcxproj -> D:\GL\Project\x64\Debug\Project.exe
+  Project.vcxproj -> C:\gea\Project\x64\Debug\Project.exe

@@ -182,6 +182,7 @@ Sprite* AvancezLib::createSprite(const char* path)
 void AvancezLib::drawText(int x, int y, const char* msg, SDL_Color color, int size)
 {
 	
+	TTF_CloseFont(font);
 	font = TTF_OpenFont("data/fonts/PressStart2P.ttf", size); //this opens a font style and sets a size
 
 	SDL_Surface* surface = TTF_RenderText_Solid(font, msg, color); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first

@@ -398,7 +398,6 @@ void GridCollideComponent::Update(float dt) {
 
 	// In case they wander where they shouldnt (Except the pump)
 	if (!grid->course_grid[from2Dto1Dindex(center_cell.x, center_cell.y, grid->course_columns)] && go0->GetName() != "pump") {
-		cout << "hej" << endl;
 		go0->ResetPosition();
 	}
 }
