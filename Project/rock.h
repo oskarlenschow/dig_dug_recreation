@@ -27,6 +27,7 @@ public:
 	{
 		SDL_Log("Rock::Init");
 		GameObject::Init(x,y);
+		mode = WALKING;
 	}
 
 	virtual void Receive(Message m)
@@ -34,7 +35,7 @@ public:
 		if (!enabled)
 			return;
 
-		if (m == HIT)
+		if (m == MOVING_HIT)
 		{
 			if (mode != CRUSHED) {
 				mode = CRUSHED;
@@ -49,7 +50,11 @@ public:
 		if (m == WALL) {
 			moving = false;
 		}
-		if (m == NO_WALL)
-			moving = true;
+		if (m == NO_WALL) {
+			if (!moving) {
+				moving = true;
+				Send(ROCK_LOOSE);
+			}
+		}
 	}
 };

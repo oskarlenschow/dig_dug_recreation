@@ -19,7 +19,7 @@ public:
 
 	virtual void Receive(Message m)
 	{
-		if (m == HIT)
+		if (m == MOVING_HIT)
 		{
 			
 			if (mode != CRUSHED) {
@@ -34,16 +34,16 @@ public:
 			switch (direction)
 			{
 			case DIRECTION::LEFT:
-				direction = DIRECTION::RIGHT;
+				direction = DIRECTION::UP;
 				break;
 			case DIRECTION::RIGHT:
-				direction = DIRECTION::LEFT;
-				break;
-			case DIRECTION::UP:
 				direction = DIRECTION::DOWN;
 				break;
+			case DIRECTION::UP:
+				direction = DIRECTION::RIGHT;
+				break;
 			case DIRECTION::DOWN:
-				direction = DIRECTION::UP;
+				direction = DIRECTION::LEFT;
 				break;
 			case DIRECTION::NONE:
 				break;
@@ -66,6 +66,7 @@ public:
 		}
 		if (m == BURST) {
 			Send(POOKAH_BURST);
+			mode = WALKING;
 			enabled = false;
 		}
 	}

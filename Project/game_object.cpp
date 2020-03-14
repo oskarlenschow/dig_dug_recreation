@@ -57,7 +57,9 @@ GameObject::~GameObject()
 {
 	SDL_Log("GameObject::~GameObject");
 }
-
+string GameObject::GetName() {
+	return "game_object";
+}
 void GameObject::AddReceiver(GameObject * go)
 {
 	receivers.push_back(go);

@@ -7,7 +7,7 @@
 #include <vector>
 
 
-enum Message { HIT, GAME_OVER, BOTH_DIRECTIONS, WALL, NO_WALL, DIG, WALK, SCORE_UP, BURST, PUMP, PUMP_RELEASE, POOKAH_BURST, FYGAR_BURST, PLAYER_HIT, EXTINGUISH};
+enum Message { HIT, MOVING_HIT, GAME_OVER, BOTH_DIRECTIONS, WALL, NO_WALL, DIG, WALK, SCORE_UP, BURST, PUMP, PUMP_RELEASE, POOKAH_BURST, FYGAR_BURST, PLAYER_HIT, PLAYER_DEAD, EXTINGUISH, ROCK_LOOSE, FYGAR_FIRE };
 
 class Component;
 
@@ -24,7 +24,7 @@ public:
 
 	DIRECTION direction;
 	DIRECTION_AXIS axis;
-	bool enabled, moving;
+	bool enabled, moving, in_use=false;
 	int mode = 0;
 
 	virtual ~GameObject();
@@ -40,6 +40,7 @@ public:
 	virtual void Destroy();
 	virtual void AddReceiver(GameObject *go);
 	virtual void Receive(Message m) {}
+	virtual string GetName();
 	void Send(Message m);
 	
 	template<typename T>

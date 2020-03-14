@@ -40,7 +40,7 @@ class Game : public GameObject
 	unsigned int level = 1;
 	unsigned int health_up = 0;
 	float timer = 0;	//Timer for flashing text
-	bool flashing_text;
+	bool flashing_text, space_pressed = false;
 
 public:
 
@@ -78,11 +78,18 @@ public:
 		CollideComponent* flame_collide_component = new CollideComponent();
 		flame_collide_component->Create(engine, player, &game_objects, (ObjectPool<GameObject>*) & flame_pool);
 		
+		CollideComponent* pookah_player_collide = new CollideComponent();
+		pookah_player_collide->Create(engine, player, &game_objects, (ObjectPool<GameObject>*) & pookah_pool);
+
+		CollideComponent* fygar_player_collide = new CollideComponent();
+		fygar_player_collide->Create(engine, player, &game_objects, (ObjectPool<GameObject>*) & fygar_pool);
 
 		player->Create();
 		player->AddComponent(player_behaviour);
 		player->AddComponent(player_render);
 		player->AddComponent(flame_collide_component);
+		player->AddComponent(pookah_player_collide);
+		player->AddComponent(fygar_player_collide);
 
 		RenderComponent* pump_render = new RenderComponent();
 		pump_render->Create(engine, pump, &game_objects, "data/sprites/pump_0.png", 0.f);
@@ -128,9 +135,13 @@ public:
 			render_component->AddSprite("data/sprites/flame_1.png", DYING);
 			render_component->AddSprite("data/sprites/flame_2.png", DYING);
 
+			GridCollideComponent* grid_collide_component = new GridCollideComponent();
+			grid_collide_component->Create(engine, grid, &game_objects, *flame, player);
+
 			(*flame)->Create();
 			(*flame)->AddComponent(behaviour_component);
 			(*flame)->AddComponent(render_component);
+			(*flame)->AddComponent(grid_collide_component);
 			(*flame)->AddReceiver(this);
 			(*flame)->AddReceiver(pump);
 			game_objects.insert(*flame);
@@ -255,16 +266,28 @@ public:
 		pump_grid_collide->Create(engine, grid, &game_objects, pump, player);
 		pump->AddComponent(pump_grid_collide);
 
-
 		life_sprite = engine->createSprite("data/sprites/player_digging_0.png");
 		level_sprite = engine->createSprite("data/sprites/flower.png");
 		background_sprite = engine->createSprite("data/background.bmp");
 
 
-		LoadMusic("song.mp3");
-		PlayMusic(music["song.mp3"]);
-		LoadMusic("level_clear.mp3");
+		LoadMusic("song.wav");
+		PlayMusic(music["song.wav"]);
+		LoadSound("level_clear.wav");
+		LoadSound("pump.wav");
+		LoadSound("monster_burst.wav");
+		LoadSound("rock_fall.wav");
+		LoadSound("game_over.wav");
+		LoadSound("fygar_fire.wav");
+		LoadSound("death.wav");
 
+	}
+	virtual void LoadSound(string path) {
+		string fullpath = "data/sounds/";
+		fullpath.append(path);
+		sounds[path] = Mix_LoadWAV(fullpath.c_str());
+		if (sounds[path] == NULL)
+			cout << "Failed to load " << fullpath.c_str() << ", " << Mix_GetError() << endl;
 	}
 	virtual void LoadMusic(string path) {
 		string fullpath = "data/sounds/";
@@ -285,8 +308,11 @@ public:
 			Mix_ResumeMusic();
 	}
 
-	virtual void PlaySound(Mix_Chunk* sound) {
-		Mix_PlayChannel(2, sound, 0);
+	virtual void PlaySound(Mix_Chunk* sound, int channel, int iterations) {
+		Mix_PlayChannel(channel, sound, iterations);
+	}
+	virtual void StopSound(int channel) {
+		Mix_HaltChannel(channel);
 	}
 	//Initialize player and aliens
 	virtual void Init()
@@ -307,7 +333,7 @@ public:
 		rock_pool.pool.at(0)->Init(7 * CELL_SIZE, 7 * CELL_SIZE);
 		rock_pool.pool.at(0)->direction = DIRECTION::NONE;
 
-		
+		pump->enabled = false;
 		enabled = true;
 	}
 	//Generate the next level
@@ -315,7 +341,7 @@ public:
 		level++;
 		enemies = 4;
 
-		PlayMusic(music["level_clear.mp3"]);
+		PlaySound(sounds["level_clear.wav"], 2, 0);
 		player->ResetPosition();
 
 		grid->Reset();
@@ -332,11 +358,41 @@ public:
 
 		rock_pool.pool.at(0)->Init(7 * CELL_SIZE, 7 * CELL_SIZE);
 		rock_pool.pool.at(0)->direction = DIRECTION::NONE;
+
+		pump->enabled = false;
 		
 		POOKAH_SPEED *= 1.2f;
 		FYGAR_SPEED *= 1.2f;
 	}
+	virtual void reset() {
+		level = 1;
+		enemies = 4;
+		pump->enabled = false;
+		player->lives = NUM_LIVES;
+		player->ResetPosition();
+
+		grid->Reset();
+
+		pookah_pool.pool.at(0)->Init(2 * CELL_SIZE, 5 * CELL_SIZE);
+		pookah_pool.pool.at(0)->direction = DIRECTION::DOWN;
+		pookah_pool.pool.at(1)->Init(10 * CELL_SIZE, 4 * CELL_SIZE);
+		pookah_pool.pool.at(1)->direction = DIRECTION::RIGHT;
+		pookah_pool.pool.at(2)->Init(9 * CELL_SIZE, 12 * CELL_SIZE);
+		pookah_pool.pool.at(2)->direction = DIRECTION::DOWN;
+
+		fygar_pool.pool.at(0)->Init(2 * CELL_SIZE, 12 * CELL_SIZE);
+		fygar_pool.pool.at(0)->direction = DIRECTION::RIGHT;
+
+		rock_pool.pool.at(0)->Init(7 * CELL_SIZE, 7 * CELL_SIZE);
+		rock_pool.pool.at(0)->direction = DIRECTION::NONE;
+		POOKAH_SPEED = 80.f;
+		FYGAR_SPEED = 80.f;
+		score = 0;
+
+	}
 	virtual void playerDeath() {
+		
+
 		for (auto go = fygar_pool.pool.begin(); go != fygar_pool.pool.end(); go++) {
 			if ((*go)->enabled)
 				(*go)->ResetPosition();
@@ -347,7 +403,7 @@ public:
 		}
 
 		player->ResetPosition();
-
+		pump->enabled = false;
 		
 	}
 	//Update the game
@@ -360,14 +416,26 @@ public:
 			Destroy();
 			engine->quit();
 		}
-		else if (keys.space) {
-			PauseMusic();
+		else if (keys.enter && game_over) {
+			reset();
+			game_over = false;
 		}
-		else if (!keys.up && !keys.down && !keys.left && !keys.right) {
+		else if (!space_pressed && pump->enabled && !game_over) {
 			PauseMusic();
+			PlaySound(sounds["pump.wav"], 1, -1);
+			space_pressed = true;
 		}
-		else {
+		else if (game_over || !pump->enabled) {
+			StopSound(1);
+			space_pressed = false;
+		}
+		if (player->moving && !game_over) {
 			ResumeMusic();
+			space_pressed = false;
+			StopSound(1);
+		}
+		else{
+			PauseMusic();
 		}
 		
 		float running = 0;  //Used to make the game stop, but still keep the score.
@@ -455,7 +523,7 @@ public:
 		if (game_over) {
 			snprintf(text, 100, "*** G A M E   O V E R ***");
 			engine->drawText(13, SCREEN_HEIGHT / 2 - 20, text, { 255, 255, 255 }, 17);
-			engine->drawText(75, SCREEN_HEIGHT / 2, "Press space to restart", { 255, 255, 255 }, 14);
+			engine->drawText(75, SCREEN_HEIGHT / 2, "Press enter to restart", { 255, 255, 255 }, 14);
 		}
 		
 
@@ -468,8 +536,13 @@ public:
 		if (m == GAME_OVER)
 		{
 			game_over = true;
+			PauseMusic();
+			PlaySound(sounds["game_over.wav"], 6, 0);
 		}
 		if (m == PLAYER_HIT) {
+			PlaySound(sounds["death.wav"], 7, 0);
+		}
+		if (m == PLAYER_DEAD) {
 			playerDeath();
 		}
 		if (m == WALL) {
@@ -482,11 +555,20 @@ public:
 		if (m == POOKAH_BURST) {
 			score += 200;
 			health_up += 200;
+			PlaySound(sounds["monster_burst.wav"], 3, 0);
 		}
 		if (m == FYGAR_BURST) {
 			score += 400;
 			health_up += 400;
+			PlaySound(sounds["monster_burst.wav"], 4, 0);
 			
+		}
+		if (m == ROCK_LOOSE) {
+			PlaySound(sounds["rock_fall.wav"], 5, 0);
+		}
+		if (m == FYGAR_FIRE) {
+			cout << "wooot" << endl;
+			PlaySound(sounds["fygar_fire.wav"], 6, 0);
 		}
 		if (score > highscore)
 			highscore = score;
@@ -495,6 +577,7 @@ public:
 			player->lives++;
 			health_up = 0;
 		}
+
 			
 
 	}

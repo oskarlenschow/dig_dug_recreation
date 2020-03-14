@@ -26,13 +26,19 @@ public:
 		if (m == PUMP)
 		{
 			moving = false;
+			in_use = true;
 		}
 		if (m == FYGAR_BURST || m == POOKAH_BURST) {
+			in_use = false;
 			enabled = false;
 		}
 		if (m == WALL) {
+			in_use = false;
 			enabled = false;
 		}
+	}
+	string GetName() {
+		return "pump";
 	}
 };
 
@@ -83,7 +89,7 @@ public:
 		for (auto i = 0; i < coll_objects->pool.size(); i++)
 		{
 			GameObject* go0 = coll_objects->pool[i];
-			if (go0->enabled)
+			if (go0->enabled && !go->in_use)
 			{
 				
 				if ((go0->position.x > go->position.x - 10) &&

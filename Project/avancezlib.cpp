@@ -1,5 +1,7 @@
 #include "avancezlib.h"
+#include <iostream>
 
+using namespace std;
 // Creates the main window. Returns true on success.
 bool AvancezLib::init(int width, int height)
 {
@@ -36,7 +38,7 @@ bool AvancezLib::init(int width, int height)
 	}
 
 	// initialize the keys
-	key.space = false;	key.left = false; key.right = false; key.up = false; key.down = false; key.esc = false;
+	key.space = false;	key.left = false; key.right = false; key.up = false; key.down = false; key.esc = false, key.enter = false;
 
 	//Initialize renderer color
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -102,6 +104,9 @@ void AvancezLib::processInput()
 			case SDLK_DOWN:
 				key.down = true;
 				break;
+			case SDLK_RETURN:
+				key.enter = true;
+				break;
 			}
 		}
 
@@ -128,9 +133,11 @@ void AvancezLib::processInput()
 			case SDLK_DOWN:
 				key.down = false;
 				break;
+			case SDLK_RETURN:
+				key.enter = false;
+				break;
 			}
 		}
-
 	}
 }
 
@@ -223,7 +230,8 @@ void Sprite::draw(int x, int y, double angle, SDL_Point* center, SDL_RendererFli
 
 	//Render texture to screen
 	//SDL_RenderCopy(renderer, texture, NULL, &rect);
-	SDL_RenderCopyEx(renderer, texture, NULL, &rect, angle, center, flip);
+	SDL_Point center_new{ 16, 16 };
+	SDL_RenderCopyEx(renderer, texture, NULL, &rect, angle, &center_new, flip);
 }
 
 

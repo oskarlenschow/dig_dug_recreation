@@ -68,20 +68,44 @@ void RenderComponent::Update(float dt)
 		default:
 			break;
 		}
+		int sprite_index_floored = floor(sprite_index);
 
-		
-
-		if (sprites.at(go->mode).at(floor(sprite_index)))
-			sprites.at(go->mode).at(floor(sprite_index))->draw(int(go->position.x), int(go->position.y), angle, NULL, flip);
-		//cout << animation_speed << endl;
-		
-		
 		if (sprite_index < old_index && (go->mode == 4 || go->mode == 5)) {
-			
+
 			go->Receive(BURST);
-			
 		}
-		
+		int offset = 0;
+		string object_name = go->GetName(); //Weird solution?  Dont like having this type of code here, but I need to guarantee that the flame is moved before painted.
+		if (sprite_index_floored > 0 && object_name == "flame" && sprite_index_floored != floor(old_index)) {
+			
+			switch (go->direction)
+			{
+			case DIRECTION::LEFT:
+				go->position.x -= 32;
+				go->dimensions.x += 32;
+				break;
+			case DIRECTION::RIGHT:
+				go->dimensions.x += 32;
+				break;
+			case DIRECTION::UP:
+				go->position.y -= 32;
+				go->dimensions.y += 32;
+				break;
+			case DIRECTION::DOWN:
+				go->dimensions.y += 32;
+				break;
+			case DIRECTION::NONE:
+				break;
+			default:
+				break;
+			}
+		}
+		if (object_name == "flame" && sprite_index_floored > 0 && go->direction == DIRECTION::UP) {
+			offset = ((go->dimensions.y - 32));
+		}
+		if (sprites.at(go->mode).at(sprite_index_floored))
+			sprites.at(go->mode).at(sprite_index_floored)->draw(int(go->position.x), (int(go->position.y) + offset), angle, NULL, flip);
+
 
 	}
 }
@@ -104,15 +128,23 @@ void CollideComponent::Update(float dt)
 	for (auto i = 0; i < coll_objects->pool.size(); i++)
 	{
 		GameObject * go0 = coll_objects->pool[i];
-		if (go0->enabled && go0->moving)
+		if (go0->enabled)
 		{
-			if ((go0->position.x > go->position.x - 10) &&
-				(go0->position.x < go->position.x + 10) &&
-				(go0->position.y > go->position.y - 10) &&
-				(go0->position.y < go->position.y + 10))
+			if ((go0->position.x + 3 < go->position.x + go->dimensions.x) &&
+				(go0->position.x + go0->dimensions.x - 3> go->position.x) &&
+				(go0->position.y + go0->dimensions.y - 3> go->position.y) &&
+				(go0->position.y + 3 < go->position.y + go->dimensions.y))
 			{
-				go->Receive(HIT);
-				go0->Receive(HIT);
+				if (go0->moving && go->GetName() != "player") {
+					go->Receive(MOVING_HIT);
+					go0->Receive(MOVING_HIT);
+				}
+				else {
+					go->Receive(HIT);
+					go0->Receive(HIT);
+				}
+
+				
 			}
 		}
 	}

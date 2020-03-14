@@ -23,7 +23,7 @@ public:
 
 	virtual void Receive(Message m)
 	{
-		if (m == HIT)
+		if (m == MOVING_HIT)
 		{
 			if (mode != CRUSHED) {
 				moving = false;
@@ -37,16 +37,16 @@ public:
 			switch (direction)
 			{
 			case DIRECTION::LEFT:
-				direction = DIRECTION::RIGHT;
+				direction = DIRECTION::UP;
 				break;
 			case DIRECTION::RIGHT:
-				direction = DIRECTION::LEFT;
-				break;
-			case DIRECTION::UP:
 				direction = DIRECTION::DOWN;
 				break;
+			case DIRECTION::UP:
+				direction = DIRECTION::RIGHT;
+				break;
 			case DIRECTION::DOWN:
-				direction = DIRECTION::UP;
+				direction = DIRECTION::LEFT;
 				break;
 			case DIRECTION::NONE:
 				break;
@@ -69,6 +69,7 @@ public:
 		}
 		if (m == BURST) {
 			Send(FYGAR_BURST);
+			mode = WALKING;
 			enabled = false;
 		}
 		if (m == EXTINGUISH) {
@@ -101,7 +102,7 @@ public:
 
 	virtual void Init()
 	{
-		timer = 3;
+		timer = 10;
 	}
 
 	virtual void Update(float dt)
@@ -148,9 +149,10 @@ public:
 				RenderComponent* renderComponent = flame->GetComponent<RenderComponent*>();
 				renderComponent->SetImageIndex(0);
 				renderComponent->SetImageSpeed(6.f);
+				go->Send(FYGAR_FIRE);
 
 			}
-			timer = 2;
+			timer = 10;
 			
 		}
 

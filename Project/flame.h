@@ -17,6 +17,8 @@ public:
 	{
 		SDL_Log("Flame::Init");
 		GameObject::Init(x, y);
+		dimensions.x = 32;
+		dimensions.y = 32;
 		this->fygar = fygar;
 		direction = dir;
 		mode = DYING;
@@ -31,7 +33,14 @@ public:
 			enabled = false;
 			cout << "test" << endl;
 		}
+		if (m == WALL) {
+			fygar->Receive(EXTINGUISH);
+			enabled = false;
+		}
 
+	}
+	string GetName() {
+		return "flame";
 	}
 };
 

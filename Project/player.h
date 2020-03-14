@@ -18,7 +18,7 @@ public:
 
 	virtual void Update(float dt)
 	{
-		if (go->mode != DYING){
+		if (go->mode != DYING) {
 			AvancezLib::KeyStatus keys;
 			engine->getKeyStatus(keys);
 			float speed = dt * PLAYER_SPEED;
@@ -30,6 +30,7 @@ public:
 					pump->direction = go->direction;
 					can_pump = false;
 				}
+				go->moving = false;
 			}
 			else if (keys.right || keys.left) {
 				if (keys.right)
@@ -48,14 +49,18 @@ public:
 				go->mode = IDLE;
 			}
 
+
 			if (!keys.space) {
 				if (!can_pump) {
 					can_pump = true;
 					pump->enabled = false;
+					pump->in_use = false;
 					go->Send(PUMP_RELEASE);
 				}
 			}
 		}
+		else
+			go->moving = false;
 	}
 	// move the player
 	void Move(float speed, DIRECTION dir)
@@ -189,6 +194,7 @@ public:
 				RenderComponent* renderComponent = GetComponent<RenderComponent*>();
 				renderComponent->SetImageIndex(0);
 				renderComponent->SetImageSpeed(4.f);
+				Send(PLAYER_HIT);
 			}
 			break;
 		case GAME_OVER:
@@ -208,11 +214,14 @@ public:
 			if (lives < 0)
 				Send(GAME_OVER);
 			else
-				Send(PLAYER_HIT);
+				Send(PLAYER_DEAD);
 			break;
 		default:
 			break;
 		}
+	}
+	string GetName() {
+		return "player";
 	}
 	void ResetPosition() {
 		GameObject::ResetPosition();

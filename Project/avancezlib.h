@@ -69,6 +69,7 @@ public:
 		bool up;
 		bool down;
 		bool esc; // escape button
+		bool enter;
 	};
 
 	// Returns the keyboard status. If a flag is set, the corresponding key is being held down.

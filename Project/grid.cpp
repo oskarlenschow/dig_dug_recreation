@@ -7,6 +7,7 @@
 using namespace std;
 extern float game_speed;
 extern float FYGAR_SPEED;
+extern float PLAYER_SPEED;
 
 void Grid::Create(double cellSize, int width, int height, int fine_per_course) {
 
@@ -99,8 +100,17 @@ void GridPlayerComponent::Update(float dt){
 		double course_collision_y = (grid->course_cell_size)* course_start_row;    //These two values are used to know if player is exactly inside a cell, without margin.
 
 
+		double clamp_distance = dt * PLAYER_SPEED;
+
+		if (fabs(course_collision_x - player->position.x) < clamp_distance)
+			player->position.x = course_collision_x;
+
+		if (fabs(course_collision_y - player->position.y) < clamp_distance)
+			player->position.y = course_collision_y;
+
+
 		//Tell player it can move in both directions
-		if (object_start_x == course_collision_x && object_start_y == course_collision_y) {
+		if (player->position.x == course_collision_x && player->position.y == course_collision_y) {
 			player->Receive(BOTH_DIRECTIONS);
 			switch (player->direction)
 			{
@@ -324,6 +334,9 @@ void GridCollideComponent::Create(AvancezLib* engine, GameObject* go, std::set<G
 }
 
 void GridCollideComponent::Update(float dt) {
+
+	//Get all cells that the object is currently touching.
+
 	Vector2D center_cell = Vector2D(floor((go0->position.x + (go0->dimensions.x / 2)) / grid->course_cell_size),
 		floor((go0->position.y + (go0->dimensions.y / 2)) / grid->course_cell_size));
 
@@ -339,6 +352,7 @@ void GridCollideComponent::Update(float dt) {
 	Vector2D bottom_cell = Vector2D(floor((go0->position.x + (go0->dimensions.x / 2)) / grid->course_cell_size),
 		floor((go0->position.y + (go0->dimensions.y - 1)) / grid->course_cell_size));
 
+	//Get all cells player is touching. Used to ensure pump can exist inside.
 	Vector2D player_center_cell = Vector2D(floor((player->position.x + (player->dimensions.x / 2)) / grid->course_cell_size),
 		floor((player->position.y + (player->dimensions.y / 2)) / grid->course_cell_size));
 
@@ -353,6 +367,8 @@ void GridCollideComponent::Update(float dt) {
 
 	Vector2D player_bottom_cell = Vector2D(floor((player->position.x + (player->dimensions.x / 2)) / grid->course_cell_size),
 		floor((player->position.y + (player->dimensions.y - 1)) / grid->course_cell_size));
+	
+		
 
 	//Move enemy back in
 	if (!grid->course_grid[from2Dto1Dindex(left_cell.x, left_cell.y, grid->course_columns)]) {
@@ -379,6 +395,12 @@ void GridCollideComponent::Update(float dt) {
 			go0->Receive(WALL);
 		}
 	}
+
+	// In case they wander where they shouldnt (Except the pump)
+	if (!grid->course_grid[from2Dto1Dindex(center_cell.x, center_cell.y, grid->course_columns)] && go0->GetName() != "pump") {
+		cout << "hej" << endl;
+		go0->ResetPosition();
+	}
 }
 
 void GridPathComponent::Create(AvancezLib* engine, GameObject* go, std::set<GameObject*>* game_objects, GameObject* go0, GameObject* player) {
@@ -398,10 +420,19 @@ void GridPathComponent::Update(float dt) {
 			path = true;
 		else if (timer < 0) { // Do this every second until path is found
 			next_cell = GetNextCell(current_cell);
-		}
+		}else
+			path = false;
 		
+		double clamp_distance = dt * FYGAR_SPEED;
+	
+		if (fabs(current_cell.x * grid->course_cell_size - go0->position.x) < clamp_distance)
+			go0->position.x = current_cell.x * grid->course_cell_size;
+
+		if (fabs(current_cell.y * grid->course_cell_size - go0->position.y) < clamp_distance)
+			go0->position.y = current_cell.y * grid->course_cell_size;
+
 		//Hunt player
-		if (path && floor(go0->position.x) == current_cell.x * grid->course_cell_size && floor(go0->position.y) == current_cell.y * grid->course_cell_size) {
+		if (path && go0->position.x == current_cell.x * grid->course_cell_size && go0->position.y == current_cell.y * grid->course_cell_size) {
 			
 			next_cell = GetNextCell(current_cell);
 
@@ -458,10 +489,10 @@ Vector2D GridPathComponent::GetNextCell(Vector2D source_cell)
 				visited[i][j] = true;
 			else
 				visited[i][j] = false;
-			/*
+			
 			if (i == floor((player->position.x + player->dimensions.x / 2) / grid->course_cell_size) && j == floor((player->position.y + player->dimensions.y / 2) / grid->course_cell_size)) {
 				visited[i][j] = false;
-			}*/
+			}
 		}
 	}
 	source.row = source_cell.x;
@@ -477,8 +508,7 @@ Vector2D GridPathComponent::GetNextCell(Vector2D source_cell)
 		q.pop();
 
 		// Destination found
-		if ((p.row == floor((player->position.x) / grid->course_cell_size) && p.col == floor((player->position.y) / grid->course_cell_size))
-			|| (p.row == floor((player->position.x + player->dimensions.x - 1) / grid->course_cell_size) && p.col == floor((player->position.y + player->dimensions.y - 1) / grid->course_cell_size))) {
+		if ((p.row == floor((player->position.x + player->dimensions.x / 2) / grid->course_cell_size) && p.col == floor((player->position.y + player->dimensions.y / 2) / grid->course_cell_size))) {
 			if(p.cells.size() > 1)
 				return p.cells[1];
 			return Vector2D(-1, -1);
